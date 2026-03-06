@@ -1,0 +1,2 @@
+experiment,model,rmse,mae,r2,binary_accuracy_at_0p5,binary_roc_auc_vs_thresholded_truth
+Vote-fraction target,Linear Regression,0.3058,0.2576,0.1831,0.5122,0.5952

@@ -1,0 +1,4 @@
+pair,agree,total,pct_agree
+Cement_vs_noCement_original  vs  Halldor_decision,127,212,59.91
+Cement_vs_noCement_original  vs  3d_surg,116,212,54.72
+Halldor_decision  vs  3d_surg,157,212,74.06

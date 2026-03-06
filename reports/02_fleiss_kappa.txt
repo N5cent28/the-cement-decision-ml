@@ -1,0 +1,1 @@
+Fleiss' kappa (3 raters, binary cemented/non-cemented): 0.2367
