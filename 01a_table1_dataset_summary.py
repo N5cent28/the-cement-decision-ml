@@ -1,5 +1,5 @@
 """
-Step 8: Table 1 and Excluded-Hip Log
+Step 1a: Table 1 and Excluded-Hip Log
 ====================================
 Build publication-ready Table 1 for the ML analysis cohort (hips retained
 after the same cleaning rules used in 03_preprocessing.py), plus a detailed
