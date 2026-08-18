@@ -1,0 +1,12 @@
+{
+  "repeats": 10,
+  "test_size": 0.2,
+  "seed_start": 100,
+  "scenarios": [
+    "scenario1_majority_ct_only",
+    "scenario3_majority_ct_plus_demo",
+    "scenario4_majority_demo_only",
+    "scenario5_h3d_agree_ct_only",
+    "scenario6_original_ct_plus_demo"
+  ]
+}

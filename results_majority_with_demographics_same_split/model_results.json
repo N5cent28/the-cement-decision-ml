@@ -1,0 +1,136 @@
+{
+  "analysis_variant": "majority_with_demographics_same_split",
+  "cross_validation": {
+    "Logistic Regression": {
+      "mean_auc": 0.7049,
+      "std_auc": 0.1202,
+      "fold_scores": [
+        0.8352941176470589,
+        0.48484848484848486,
+        0.7863247863247863,
+        0.7008547008547009,
+        0.7171717171717171
+      ]
+    },
+    "Random Forest": {
+      "mean_auc": 0.6503,
+      "std_auc": 0.1395,
+      "fold_scores": [
+        0.7686274509803921,
+        0.37662337662337664,
+        0.6923076923076923,
+        0.6965811965811967,
+        0.7171717171717172
+      ]
+    },
+    "Gradient Boosting": {
+      "mean_auc": 0.6068,
+      "std_auc": 0.1313,
+      "fold_scores": [
+        0.7882352941176471,
+        0.393939393939394,
+        0.5726495726495726,
+        0.688034188034188,
+        0.5909090909090909
+      ]
+    },
+    "SVM (RBF)": {
+      "mean_auc": 0.6591,
+      "std_auc": 0.1153,
+      "fold_scores": [
+        0.7764705882352941,
+        0.4415584415584416,
+        0.6666666666666666,
+        0.6837606837606838,
+        0.7272727272727273
+      ]
+    }
+  },
+  "test_set": {
+    "Logistic Regression": {
+      "accuracy": 0.6279,
+      "precision": 0.5789,
+      "recall": 0.5789,
+      "f1": 0.5789,
+      "roc_auc": 0.7193,
+      "pr_auc": 0.6869
+    },
+    "Random Forest": {
+      "accuracy": 0.6512,
+      "precision": 0.625,
+      "recall": 0.5263,
+      "f1": 0.5714,
+      "roc_auc": 0.7237,
+      "pr_auc": 0.6574
+    },
+    "Gradient Boosting": {
+      "accuracy": 0.6279,
+      "precision": 0.5789,
+      "recall": 0.5789,
+      "f1": 0.5789,
+      "roc_auc": 0.6754,
+      "pr_auc": 0.6437
+    },
+    "SVM (RBF)": {
+      "accuracy": 0.6977,
+      "precision": 0.65,
+      "recall": 0.6842,
+      "f1": 0.6667,
+      "roc_auc": 0.7566,
+      "pr_auc": 0.7392
+    }
+  },
+  "cohort_specific": {
+    "Cohort_1": {
+      "Logistic Regression": {
+        "accuracy": 0.7857,
+        "roc_auc": 0.8646,
+        "n_samples": 28
+      },
+      "Random Forest": {
+        "accuracy": 0.7857,
+        "roc_auc": 0.8906,
+        "n_samples": 28
+      },
+      "Gradient Boosting": {
+        "accuracy": 0.6429,
+        "roc_auc": 0.6927,
+        "n_samples": 28
+      },
+      "SVM (RBF)": {
+        "accuracy": 0.75,
+        "roc_auc": 0.9115,
+        "n_samples": 28
+      }
+    },
+    "Cohort_2": {
+      "Logistic Regression": {
+        "accuracy": 0.3333,
+        "roc_auc": 0.4464,
+        "n_samples": 15
+      },
+      "Random Forest": {
+        "accuracy": 0.4,
+        "roc_auc": 0.4464,
+        "n_samples": 15
+      },
+      "Gradient Boosting": {
+        "accuracy": 0.6,
+        "roc_auc": 0.6429,
+        "n_samples": 15
+      },
+      "SVM (RBF)": {
+        "accuracy": 0.6,
+        "roc_auc": 0.4821,
+        "n_samples": 15
+      }
+    }
+  },
+  "preprocessing": {
+    "n_train": 157,
+    "n_test": 43,
+    "n_features_total": 27,
+    "n_demographic_features": 5,
+    "split_stratification_mode": "target_plus_cohort"
+  }
+}

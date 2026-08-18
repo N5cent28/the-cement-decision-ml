@@ -1,13 +1,13 @@
 experiment_key,experiment,model,accuracy,roc_auc,pr_auc,f1
-majority_ct_only,Majority: CT-only,Logistic Regression,0.6341,0.7405,0.7539,0.5714
-majority_ct_only,Majority: CT-only,Random Forest,0.5854,0.6143,0.71,0.5405
-majority_ct_only,Majority: CT-only,Gradient Boosting,0.6829,0.6952,0.7736,0.6829
-majority_ct_only,Majority: CT-only,SVM (RBF),0.6829,0.6905,0.7719,0.6286
-majority_ct_plus_demo,Majority: CT + demographics,Logistic Regression,0.7561,0.869,0.878,0.75
-majority_ct_plus_demo,Majority: CT + demographics,Random Forest,0.6341,0.6833,0.7567,0.6154
-majority_ct_plus_demo,Majority: CT + demographics,Gradient Boosting,0.7073,0.7214,0.8067,0.7
-majority_ct_plus_demo,Majority: CT + demographics,SVM (RBF),0.7317,0.7738,0.8342,0.6857
-majority_demo_only,Majority: demographics-only,Logistic Regression,0.6829,0.7857,0.7673,0.6486
-majority_demo_only,Majority: demographics-only,Random Forest,0.6341,0.6786,0.697,0.5161
-majority_demo_only,Majority: demographics-only,Gradient Boosting,0.5366,0.5833,0.6601,0.4571
-majority_demo_only,Majority: demographics-only,SVM (RBF),0.7317,0.7452,0.7574,0.7179
+majority_ct_only,Majority: CT-only,Logistic Regression,0.6512,0.6469,0.5766,0.6341
+majority_ct_only,Majority: CT-only,Random Forest,0.6047,0.7368,0.6309,0.4848
+majority_ct_only,Majority: CT-only,Gradient Boosting,0.6279,0.7171,0.6117,0.5556
+majority_ct_only,Majority: CT-only,SVM (RBF),0.6977,0.6996,0.6071,0.6286
+majority_ct_plus_demo,Majority: CT + demographics,Logistic Regression,0.6279,0.7193,0.6869,0.5789
+majority_ct_plus_demo,Majority: CT + demographics,Random Forest,0.6512,0.7237,0.6574,0.5714
+majority_ct_plus_demo,Majority: CT + demographics,Gradient Boosting,0.6279,0.6754,0.6437,0.5789
+majority_ct_plus_demo,Majority: CT + demographics,SVM (RBF),0.6977,0.7566,0.7392,0.6667
+majority_demo_only,Majority: demographics-only,Logistic Regression,0.6047,0.7061,0.7014,0.5405
+majority_demo_only,Majority: demographics-only,Random Forest,0.5581,0.6425,0.598,0.4865
+majority_demo_only,Majority: demographics-only,Gradient Boosting,0.5581,0.4978,0.4374,0.4865
+majority_demo_only,Majority: demographics-only,SVM (RBF),0.5814,0.6009,0.6105,0.5909

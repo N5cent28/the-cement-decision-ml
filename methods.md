@@ -2,7 +2,7 @@
 
 **Working title:** The Artificial Intelligence versus the Orthopaedic Surgeon in Decision-Making of Cemented or Uncemented Total Hip Arthroplasty
 
-**Last updated:** 2026-03-03
+**Last updated:** 2026-03-05
 
 ---
 
@@ -85,8 +85,10 @@ All preprocessing was performed in a leakage-safe manner: imputation and scaling
 
 - **Split ratio:** 80% train / 20% test
 - **Grouping:** Patient-level (`Anonymize_ID`) — all hips from a patient stay in the same split
-- **Stratification:** By ground truth label and cohort source to maintain class and cohort balance in both sets
+- **Stratification:** Patient-level stratified split by target + cohort where feasible, with explicit fallback order: `target_plus_cohort` -> `target_only_fallback` -> `unstratified_fallback`
 - **When reusing the “same split” in later analyses:** this refers to the same patient/hip membership in train and test (not just another 80/20 split). Matching was verified at the row key level (`Anonymize_ID` + `hip_side`).
+
+The split mode actually used is recorded in each preprocessing metadata file as `split_stratification_mode`, and repeated-split experiments aggregate usage in `results_repeated_splits_scenarios_1_3_4_5_6/split_stratification_usage.csv`.
 
 ### 5.2 Missing Value Imputation
 
@@ -182,46 +184,51 @@ For tree-based models (Random Forest, Gradient Boosting), feature importance sco
 |------|--------|
 | 2026-03-03 | Initial methods document created. Pipeline steps 1–4 implemented. |
 | 2026-03-05 | Pipeline steps b-d implemented. |
+| 2026-03-05 | Added scenarios 5–6, split-stratification logging, and repeated-split robustness analysis. |
 
 ---
 
-## Discussion (Draft Start)
+## Discussion
 
-This initial analysis supports the central premise of the project: CT-derived quantitative features can provide clinically meaningful signal for THA fixation decision support, but label uncertainty and cohort heterogeneity remain major determinants of model behavior.
+This analysis continues to support the central premise that CT-derived quantitative features carry clinically useful signal for fixation decision support, while also showing that performance estimates are sensitive to label definition and split selection.
 
-Inter-rater agreement among surgeons was limited (Fleiss' kappa = 0.2367, interpreted as fair agreement), with only 44.3% of hips receiving unanimous labels and 55.7% assigned by majority-only agreement. This finding is important because it confirms that the prediction target is not fully stable across experts and that any model evaluation should be interpreted in the context of imperfect ground truth. In practical terms, this supports the use of sensitivity analyses across multiple label definitions (original-surgeon, majority-vote, and vote-fraction approaches).
+Inter-rater agreement remained limited (Fleiss' kappa = 0.2367, fair agreement), which means any supervised target built from surgeon labels carries irreducible uncertainty. This motivates maintaining multiple label scenarios and reporting uncertainty explicitly.
 
-After predefined quality filtering and anomaly exclusion, 200 hips from 111 patients remained for analysis. This cleaning step removed clearly implausible CT-derived values (e.g., BMD artifact values and failed segmentation geometry), reducing noise and likely improving model reliability. The resulting majority-vote ground truth was moderately balanced (115 non-cemented vs 85 cemented), allowing standard binary classification metrics to be informative without severe class-imbalance correction.
+After quality filtering and anomaly exclusion, 200 hips from 111 patients were retained. For majority-vote classification with corrected patient-level stratified split handling, test performance changed versus earlier runs:
+- Scenario 1 (majority, CT-only): best test ROC-AUC = **0.7368** (Random Forest), best accuracy = **0.6977** (SVM).
+- Scenario 3 (majority, CT + demographics): best test ROC-AUC = **0.7566** (SVM).
+- Scenario 4 (majority, demographics-only): best test ROC-AUC = **0.7061** (Logistic Regression).
 
-In model comparison, test-set performance suggested that no single algorithm is uniformly superior across all metrics. Logistic Regression produced the highest ROC-AUC (0.7405), indicating strong ranking performance and suggesting that a linear baseline remains competitive in this dataset. Gradient Boosting and SVM achieved the highest accuracy (0.6829 each), with Gradient Boosting also yielding the strongest PR-AUC (0.7736), which is relevant when positive-class enrichment varies across splits. Random Forest performed less favorably in this run. The combination of moderate discrimination and relatively modest absolute performance indicates useful signal, but not yet a deployment-ready classifier.
+These updated results suggest CT + demographics provides the strongest discrimination among majority-vote feature-set variants, but the margin over CT-only is modest in a single split.
 
 ![Original majority-vote ROC curves](results_majority/figures/roc_curves.png)
 
-Feature-importance patterns in tree-based models were biologically plausible and aligned with prior hypotheses: internal radius measures (`ray_inner_radius_mm`, `geometric_inner_R_mm`), cortical-related ratios, and BMD variability features were recurrently influential. These results suggest that local geometric structure and CT-derived bone quality heterogeneity may be at least as informative as absolute zone values alone for fixation classification.
+Scenario 5 (Halldor+3D agreement-only, CT-only) achieved best test ROC-AUC **0.6944** (Random Forest) with reduced sample size (train 121, test 29), consistent with information loss when disagreement cases are removed. Scenario 6 (original-surgeon target, CT+demographics) produced very high held-out discrimination (best test ROC-AUC **0.9926**, Logistic Regression), but this should be interpreted cautiously because (a) the target may be strongly encoded by demographic patterns and (b) single-split estimates can be optimistic.
 
-Cohort-specific evaluation indicated domain shift between Cohort_1 and Cohort_2, with model behavior differing substantially across scanners and acquisition eras. This is consistent with known differences in image quality and distribution between older Philips and newer Toshiba data. These differences reinforce the need for domain-aware validation, cohort-stratified reporting, and potentially harmonization or domain-adaptation strategies in later phases.
+The vote-fraction analysis remains a distinct regression task; best RMSE = **0.3173** (Linear Regression, R2 = 0.1060). These metrics are not directly interchangeable with majority-vote ROC-AUC.
 
-Overall, the current pipeline demonstrates a reproducible and leakage-safe framework for iterative modeling. The immediate next discussion-level priorities are: (1) quantifying robustness under alternative ground truth definitions, (2) repeating analyses on unanimous-only subsets, (3) explicitly testing the impact of retaining vs excluding questionable-quality scans, and (4) assessing generalization under stricter cohort transfer settings. Together, these steps will clarify whether observed model performance reflects stable biological signal or sensitivity to labeling and cohort artifacts.
+### Comparative sensitivity analyses (scenarios 1–6)
 
-### Comparative sensitivity analyses across four ML exercises
-
-To quantify how label definition and feature family choices influence predictive performance, four separate analyses were executed with isolated scripts and output folders:
-
+To quantify label/feature sensitivity, six isolated scenarios were executed:
 1. Majority-vote ground truth, CT-derived features only.
 2. Vote-fraction ground truth (continuous target), CT-derived features.
-3. Majority-vote ground truth, CT + demographic features (same train/test split as analysis 1).
-4. Majority-vote ground truth, demographic features only (same train/test split as analysis 1).
-
-For direct classification comparison under majority-vote ground truth, Logistic Regression provided a clear and interpretable benchmark across feature sets:
-- CT-only: ROC-AUC 0.7405, accuracy 0.6341, PR-AUC 0.7539.
-- CT + demographics: ROC-AUC 0.8690, accuracy 0.7561, PR-AUC 0.8780.
-- Demographics-only: ROC-AUC 0.7857, accuracy 0.6829, PR-AUC 0.7673.
-
-This pattern suggests that demographic variables add meaningful predictive information in this dataset, and that the combined CT + demographic feature set performs best on the held-out split. Demographics-only models retain moderate predictive signal, but underperform the combined model, indicating that CT-derived features still contribute complementary value.
-
-The vote-fraction analysis used a non-binary target and was evaluated primarily with regression metrics. The best RMSE was achieved by Linear Regression (RMSE 0.3058; R2 0.1831), while thresholded binary readouts were lower than majority-vote optimized classification runs.
+3. Majority-vote ground truth, CT + demographic features (same split as scenario 1).
+4. Majority-vote ground truth, demographic features only (same split as scenario 1).
+5. Halldor + 3D labels only, agreement-only subset, CT-derived features only.
+6. Original surgeon label as ground truth, CT + demographic features.
 
 ![Comparison across majority-vote feature-set experiments](results_comparison_all_experiments/figures/majority_experiments_comparison.png)
 
-Comparative artifacts are stored in `results_comparison_all_experiments/` (summary tables and figures).
+Best-model feature-importance outputs for scenarios 1, 3, 4, 5, and 6 are stored in `results_feature_importance_best_model/`, with per-scenario CSV rankings and top-feature plots indexed in `best_model_feature_importance_summary.csv`.
+
+### Repeated split robustness check
+
+To reduce dependence on a single test split, repeated patient-grouped split evaluation was run for scenarios 1, 3, 4, 5, and 6 (`repeats=10`):
+- Scenario 1: Logistic Regression median ROC-AUC **0.7569**
+- Scenario 3: Logistic Regression median ROC-AUC **0.8220**
+- Scenario 4: Logistic Regression median ROC-AUC **0.7230**
+- Scenario 5: Random Forest median ROC-AUC **0.8176**
+- Scenario 6: Logistic Regression median ROC-AUC **0.9167**
+
+These repeated-split distributions provide a more stable estimate than any single hold-out run and are available in `results_repeated_splits_scenarios_1_3_4_5_6/`.
 

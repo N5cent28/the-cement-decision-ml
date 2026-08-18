@@ -1,0 +1,20 @@
+Dataset exclusion summary
+=========================
+Raw hips: 212
+Excluded hips: 12
+ML cohort hips: 200
+ML cohort patients: 111
+
+Excluded hips:
+  ID 6 Left (Cohort_1): zone_3_bmd = 0.14 (< 0.5); zone_4_bmd = 0.14 (< 0.5); zone_5_bmd = 0.14 (< 0.5)
+  ID 6 Right (Cohort_1): zone_3_bmd = 0.14 (< 0.5); zone_4_bmd = 0.14 (< 0.5); zone_5_bmd = 0.14 (< 0.5)
+  ID 7 Right (Cohort_1): cortical_area_mm2 = 0.47 (< 50.0); cortical_thickness_mm = 0.74 (< 2.0)
+  ID 14 Right (Cohort_1): cortical_area_mm2 = 4.54 (< 50.0); cortical_thickness_mm = 1.24 (< 2.0); notes = 'Unusable with same HU range'; zone_4_bmd = 0.14 (< 0.5)
+  ID 17 Left (Cohort_1): zone_4_bmd = 0.14 (< 0.5)
+  ID 17 Right (Cohort_1): zone_4_bmd = 0.14 (< 0.5); zone_5_bmd = 0.14 (< 0.5)
+  ID 20 Right (Cohort_1): cortical_area_mm2 = 3.96 (< 50.0)
+  ID 24 Left (Cohort_1): zone_4_bmd = 0.14 (< 0.5)
+  ID 24 Right (Cohort_1): zone_4_bmd = 0.14 (< 0.5)
+  ID 26 Left (Cohort_1): zone_4_bmd = 0.14 (< 0.5)
+  ID 30 Right (Cohort_1): notes = 'Unusable with same HU range'; zone_4_bmd = 0.14 (< 0.5)
+  ID 74 Left (Cohort_2): zone_4_bmd = 0.00 (< 0.5)

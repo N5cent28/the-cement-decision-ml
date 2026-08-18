@@ -5,7 +5,8 @@ Load the raw CSV, inspect columns/types, quantify missingness,
 check class balance across all three surgeon labels, flag anomalous
 values, and report cohort-level summaries.
 
-Run:  python 01_data_audit.py
+Run:  source .venv/bin/activate && python 01_data_audit.py
+       # or: python3.11 01_data_audit.py  (if pandas is installed for that interpreter)
 """
 
 import pandas as pd

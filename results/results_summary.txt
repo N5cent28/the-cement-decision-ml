@@ -1,0 +1,56 @@
+THA Cement Decision — Model Results Summary
+==================================================
+
+Cross-Validation (Grouped K-Fold, training set):
+  Logistic Regression: AUC = 0.6934 +/- 0.0846
+  Random Forest: AUC = 0.6360 +/- 0.0866
+  Gradient Boosting: AUC = 0.6177 +/- 0.0946
+  SVM (RBF): AUC = 0.6548 +/- 0.0871
+
+Test Set Performance:
+
+  Logistic Regression:
+    accuracy: 0.6512
+    precision: 0.5909
+    recall: 0.6842
+    f1: 0.6341
+    roc_auc: 0.6469
+    pr_auc: 0.5766
+
+  Random Forest:
+    accuracy: 0.6047
+    precision: 0.5714
+    recall: 0.4211
+    f1: 0.4848
+    roc_auc: 0.7368
+    pr_auc: 0.6309
+
+  Gradient Boosting:
+    accuracy: 0.6279
+    precision: 0.5882
+    recall: 0.5263
+    f1: 0.5556
+    roc_auc: 0.7171
+    pr_auc: 0.6117
+
+  SVM (RBF):
+    accuracy: 0.6977
+    precision: 0.6875
+    recall: 0.5789
+    f1: 0.6286
+    roc_auc: 0.6996
+    pr_auc: 0.6071
+
+Cohort-Specific Test Performance:
+
+  Cohort_1:
+    Logistic Regression: Acc=0.7857, AUC=0.7917
+    Random Forest: Acc=0.7143, AUC=0.875
+    Gradient Boosting: Acc=0.6786, AUC=0.8177
+    SVM (RBF): Acc=0.8571, AUC=0.9115
+
+  Cohort_2:
+    Logistic Regression: Acc=0.4, AUC=0.4643
+    Random Forest: Acc=0.4, AUC=0.5179
+    Gradient Boosting: Acc=0.5333, AUC=0.5
+    SVM (RBF): Acc=0.4, AUC=0.3036

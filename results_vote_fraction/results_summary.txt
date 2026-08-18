@@ -2,37 +2,37 @@ THA Cement Decision — Vote Fraction Analysis Summary
 ==========================================================
 
 Cross-validation (grouped):
-  Linear Regression: RMSE=0.7490 +/- 0.7484, R2=-9.5099 +/- 18.5535
-  Random Forest Regressor: RMSE=0.3417 +/- 0.0456, R2=-0.0389 +/- 0.2810
-  Gradient Boosting Regressor: RMSE=0.3663 +/- 0.0367, R2=-0.1928 +/- 0.2659
-  SVR (RBF): RMSE=0.3607 +/- 0.0502, R2=-0.1561 +/- 0.3054
+  Linear Regression: RMSE=0.3604 +/- 0.0677, R2=-0.1565 +/- 0.2533
+  Random Forest Regressor: RMSE=0.3220 +/- 0.0350, R2=0.0733 +/- 0.1181
+  Gradient Boosting Regressor: RMSE=0.3506 +/- 0.0428, R2=-0.1006 +/- 0.1697
+  SVR (RBF): RMSE=0.3356 +/- 0.0394, R2=-0.0056 +/- 0.1313
 
 Test set metrics:
 
   Linear Regression:
-    rmse: 0.3058
-    mae: 0.2576
-    r2: 0.1831
-    binary_accuracy_at_0p5: 0.5122
-    binary_roc_auc_vs_thresholded_truth: 0.5952
+    rmse: 0.3173
+    mae: 0.2544
+    r2: 0.106
+    binary_accuracy_at_0p5: 0.619
+    binary_roc_auc_vs_thresholded_truth: 0.643
 
   Random Forest Regressor:
-    rmse: 0.3248
-    mae: 0.2643
-    r2: 0.0785
-    binary_accuracy_at_0p5: 0.561
-    binary_roc_auc_vs_thresholded_truth: 0.6833
+    rmse: 0.3524
+    mae: 0.3005
+    r2: -0.1026
+    binary_accuracy_at_0p5: 0.5238
+    binary_roc_auc_vs_thresholded_truth: 0.524
 
   Gradient Boosting Regressor:
-    rmse: 0.3482
-    mae: 0.2899
-    r2: -0.0593
-    binary_accuracy_at_0p5: 0.6098
-    binary_roc_auc_vs_thresholded_truth: 0.681
+    rmse: 0.3695
+    mae: 0.3166
+    r2: -0.2124
+    binary_accuracy_at_0p5: 0.4524
+    binary_roc_auc_vs_thresholded_truth: 0.4828
 
   SVR (RBF):
-    rmse: 0.3289
-    mae: 0.2756
-    r2: 0.0551
-    binary_accuracy_at_0p5: 0.6098
-    binary_roc_auc_vs_thresholded_truth: 0.6857
+    rmse: 0.3789
+    mae: 0.3168
+    r2: -0.2749
+    binary_accuracy_at_0p5: 0.4762
+    binary_roc_auc_vs_thresholded_truth: 0.4622

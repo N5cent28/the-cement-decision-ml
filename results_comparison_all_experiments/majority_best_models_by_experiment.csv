@@ -1,4 +1,4 @@
 experiment,model,roc_auc,accuracy,pr_auc,f1
-Majority: CT + demographics,Logistic Regression,0.869,0.7561,0.878,0.75
-Majority: CT-only,Logistic Regression,0.7405,0.6341,0.7539,0.5714
-Majority: demographics-only,Logistic Regression,0.7857,0.6829,0.7673,0.6486
+Majority: CT + demographics,SVM (RBF),0.7566,0.6977,0.7392,0.6667
+Majority: CT-only,Random Forest,0.7368,0.6047,0.6309,0.4848
+Majority: demographics-only,Logistic Regression,0.7061,0.6047,0.7014,0.5405

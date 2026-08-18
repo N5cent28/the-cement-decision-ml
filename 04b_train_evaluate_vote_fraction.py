@@ -278,6 +278,7 @@ def save_results(cv_results, test_results, cohort_results, meta):
             "n_train": meta["n_train_rows"],
             "n_test": meta["n_test_rows"],
             "n_features": len(meta["feature_columns"]),
+            "split_stratification_mode": meta.get("split_stratification_mode", "not_recorded"),
         },
     }
     json_path = os.path.join(RESULTS_DIR, "model_results.json")

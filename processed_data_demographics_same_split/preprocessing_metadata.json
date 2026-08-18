@@ -51,10 +51,11 @@
   "test_size": 0.2,
   "random_state": 42,
   "knn_neighbors": 5,
-  "n_train_rows": 159,
-  "n_test_rows": 41,
+  "n_train_rows": 157,
+  "n_test_rows": 43,
   "n_train_patients": 88,
   "n_test_patients": 23,
+  "split_stratification_mode": "target_plus_cohort",
   "analysis_variant": "majority_with_demographics_same_split",
   "base_split_source": "processed_data",
   "demographic_feature_columns": [

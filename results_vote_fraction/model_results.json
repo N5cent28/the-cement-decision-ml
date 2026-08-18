@@ -2,109 +2,110 @@
   "analysis_variant": "vote_fraction",
   "cross_validation": {
     "Linear Regression": {
-      "mean_rmse": 0.749,
-      "std_rmse": 0.7484,
-      "mean_r2": -9.5099,
-      "std_r2": 18.5535
+      "mean_rmse": 0.3604,
+      "std_rmse": 0.0677,
+      "mean_r2": -0.1565,
+      "std_r2": 0.2533
     },
     "Random Forest Regressor": {
-      "mean_rmse": 0.3417,
-      "std_rmse": 0.0456,
-      "mean_r2": -0.0389,
-      "std_r2": 0.281
+      "mean_rmse": 0.322,
+      "std_rmse": 0.035,
+      "mean_r2": 0.0733,
+      "std_r2": 0.1181
     },
     "Gradient Boosting Regressor": {
-      "mean_rmse": 0.3663,
-      "std_rmse": 0.0367,
-      "mean_r2": -0.1928,
-      "std_r2": 0.2659
+      "mean_rmse": 0.3506,
+      "std_rmse": 0.0428,
+      "mean_r2": -0.1006,
+      "std_r2": 0.1697
     },
     "SVR (RBF)": {
-      "mean_rmse": 0.3607,
-      "std_rmse": 0.0502,
-      "mean_r2": -0.1561,
-      "std_r2": 0.3054
+      "mean_rmse": 0.3356,
+      "std_rmse": 0.0394,
+      "mean_r2": -0.0056,
+      "std_r2": 0.1313
     }
   },
   "test_set": {
     "Linear Regression": {
-      "rmse": 0.3058,
-      "mae": 0.2576,
-      "r2": 0.1831,
-      "binary_accuracy_at_0p5": 0.5122,
-      "binary_roc_auc_vs_thresholded_truth": 0.5952
+      "rmse": 0.3173,
+      "mae": 0.2544,
+      "r2": 0.106,
+      "binary_accuracy_at_0p5": 0.619,
+      "binary_roc_auc_vs_thresholded_truth": 0.643
     },
     "Random Forest Regressor": {
-      "rmse": 0.3248,
-      "mae": 0.2643,
-      "r2": 0.0785,
-      "binary_accuracy_at_0p5": 0.561,
-      "binary_roc_auc_vs_thresholded_truth": 0.6833
+      "rmse": 0.3524,
+      "mae": 0.3005,
+      "r2": -0.1026,
+      "binary_accuracy_at_0p5": 0.5238,
+      "binary_roc_auc_vs_thresholded_truth": 0.524
     },
     "Gradient Boosting Regressor": {
-      "rmse": 0.3482,
-      "mae": 0.2899,
-      "r2": -0.0593,
-      "binary_accuracy_at_0p5": 0.6098,
-      "binary_roc_auc_vs_thresholded_truth": 0.681
+      "rmse": 0.3695,
+      "mae": 0.3166,
+      "r2": -0.2124,
+      "binary_accuracy_at_0p5": 0.4524,
+      "binary_roc_auc_vs_thresholded_truth": 0.4828
     },
     "SVR (RBF)": {
-      "rmse": 0.3289,
-      "mae": 0.2756,
-      "r2": 0.0551,
-      "binary_accuracy_at_0p5": 0.6098,
-      "binary_roc_auc_vs_thresholded_truth": 0.6857
+      "rmse": 0.3789,
+      "mae": 0.3168,
+      "r2": -0.2749,
+      "binary_accuracy_at_0p5": 0.4762,
+      "binary_roc_auc_vs_thresholded_truth": 0.4622
     }
   },
   "cohort_specific": {
     "Cohort_1": {
       "Linear Regression": {
-        "rmse": 0.2817,
-        "binary_accuracy_at_0p5": 0.5,
-        "n_samples": 22
+        "rmse": 0.2998,
+        "binary_accuracy_at_0p5": 0.6296,
+        "n_samples": 27
       },
       "Random Forest Regressor": {
-        "rmse": 0.2362,
-        "binary_accuracy_at_0p5": 0.6818,
-        "n_samples": 22
+        "rmse": 0.3462,
+        "binary_accuracy_at_0p5": 0.5185,
+        "n_samples": 27
       },
       "Gradient Boosting Regressor": {
-        "rmse": 0.2927,
-        "binary_accuracy_at_0p5": 0.5909,
-        "n_samples": 22
+        "rmse": 0.3594,
+        "binary_accuracy_at_0p5": 0.4815,
+        "n_samples": 27
       },
       "SVR (RBF)": {
-        "rmse": 0.2951,
-        "binary_accuracy_at_0p5": 0.6364,
-        "n_samples": 22
+        "rmse": 0.3546,
+        "binary_accuracy_at_0p5": 0.5185,
+        "n_samples": 27
       }
     },
     "Cohort_2": {
       "Linear Regression": {
-        "rmse": 0.3316,
-        "binary_accuracy_at_0p5": 0.5263,
-        "n_samples": 19
+        "rmse": 0.3466,
+        "binary_accuracy_at_0p5": 0.6,
+        "n_samples": 15
       },
       "Random Forest Regressor": {
-        "rmse": 0.4038,
-        "binary_accuracy_at_0p5": 0.4211,
-        "n_samples": 19
+        "rmse": 0.3633,
+        "binary_accuracy_at_0p5": 0.5333,
+        "n_samples": 15
       },
       "Gradient Boosting Regressor": {
-        "rmse": 0.4031,
-        "binary_accuracy_at_0p5": 0.6316,
-        "n_samples": 19
+        "rmse": 0.3871,
+        "binary_accuracy_at_0p5": 0.4,
+        "n_samples": 15
       },
       "SVR (RBF)": {
-        "rmse": 0.3641,
-        "binary_accuracy_at_0p5": 0.5789,
-        "n_samples": 19
+        "rmse": 0.4192,
+        "binary_accuracy_at_0p5": 0.4,
+        "n_samples": 15
       }
     }
   },
   "preprocessing": {
-    "n_train": 159,
-    "n_test": 41,
-    "n_features": 22
+    "n_train": 158,
+    "n_test": 42,
+    "n_features": 22,
+    "split_stratification_mode": "target_plus_cohort"
   }
 }

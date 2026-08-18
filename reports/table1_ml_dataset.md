@@ -1,0 +1,27 @@
+# Table 1. ML Analysis Cohort Characteristics
+
+| Characteristic | Value |
+|---|---|
+| Hips, n | 200 |
+| Patients, n | 111 |
+| Age, years, mean ± SD (patient-level) | 62.3 ± 10.6 |
+| Sex — Male (patient-level) | 48 (43.2%) |
+| Sex — Female (patient-level) | 63 (56.8%) |
+| Weight, kg, mean ± SD (patient-level) | 85.9 ± 16.3 |
+| Height, cm, mean ± SD (patient-level) | 171.7 ± 9.0 |
+| BMI, kg/m², mean ± SD (patient-level) | 29.1 ± 5.1 |
+| Cohort 1 (Philips) — hips | 125 (62.5%) |
+| Cohort 1 (Philips) — patients | 66 |
+| Cohort 2 (Toshiba) — hips | 75 (37.5%) |
+| Cohort 2 (Toshiba) — patients | 45 |
+| Hip side — Left | 101 (50.5%) |
+| Hip side — Right | 99 (49.5%) |
+| Operated side — Left | 83 (41.5%) |
+| Operated side — Right | 117 (58.5%) |
+| Bilateral scans (2 hips), patients | 89 |
+| Unilateral scans (1 hip), patients | 22 |
+| Majority vote — Cemented | 85 (42.5%) |
+| Majority vote — Non-cemented | 115 (57.5%) |
+| Scan note — Auto-processed | 178 (89.0%) |
+| Scan note — Questionable Quality | 17 (8.5%) |
+| Scan note — Questionable scan quality | 5 (2.5%) |

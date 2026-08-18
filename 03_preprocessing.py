@@ -16,7 +16,7 @@ import pandas as pd
 import numpy as np
 import os
 import json
-from sklearn.model_selection import GroupShuffleSplit
+from sklearn.model_selection import train_test_split
 from sklearn.impute import KNNImputer
 from sklearn.preprocessing import StandardScaler
 
@@ -162,20 +162,34 @@ def patient_grouped_split(df, target_col="gt_majority"):
     patient_info["strat_key"] = (patient_info[target_col].astype(int).astype(str)
                                  + "_" + patient_info["Cohort_group"])
 
-    gss = GroupShuffleSplit(n_splits=1, test_size=TEST_SIZE,
-                           random_state=RANDOM_STATE)
+    # True patient-level stratification. Fallback progressively if strata are sparse.
+    split_strategy = "target_plus_cohort"
+    try:
+        train_pat, test_pat = train_test_split(
+            patient_info,
+            test_size=TEST_SIZE,
+            random_state=RANDOM_STATE,
+            stratify=patient_info["strat_key"],
+        )
+    except ValueError:
+        split_strategy = "target_only_fallback"
+        try:
+            train_pat, test_pat = train_test_split(
+                patient_info,
+                test_size=TEST_SIZE,
+                random_state=RANDOM_STATE,
+                stratify=patient_info[target_col].astype(int),
+            )
+        except ValueError:
+            split_strategy = "unstratified_fallback"
+            train_pat, test_pat = train_test_split(
+                patient_info,
+                test_size=TEST_SIZE,
+                random_state=RANDOM_STATE,
+            )
 
-    # Use patient IDs as groups
-    patient_ids = df_usable["Anonymize_ID"].values
-
-    # We stratify at the patient level, so use patient_info for the split
-    train_patients_idx, test_patients_idx = next(
-        gss.split(patient_info, patient_info["strat_key"],
-                  groups=patient_info["Anonymize_ID"])
-    )
-
-    train_patient_ids = set(patient_info.iloc[train_patients_idx]["Anonymize_ID"])
-    test_patient_ids = set(patient_info.iloc[test_patients_idx]["Anonymize_ID"])
+    train_patient_ids = set(train_pat["Anonymize_ID"])
+    test_patient_ids = set(test_pat["Anonymize_ID"])
 
     train_mask = df_usable["Anonymize_ID"].isin(train_patient_ids)
     test_mask = df_usable["Anonymize_ID"].isin(test_patient_ids)
@@ -196,9 +210,10 @@ def patient_grouped_split(df, target_col="gt_majority"):
     print(f"    {df_train['gt_majority'].value_counts().to_dict()}")
     print(f"  Test target distribution (gt_majority):")
     print(f"    {df_test['gt_majority'].value_counts().to_dict()}")
+    print(f"\n  Split stratification mode used: {split_strategy}")
     print()
 
-    return df_train, df_test
+    return df_train, df_test, split_strategy
 
 
 def cohort_specific_knn_impute(df_train, df_test, feature_cols):
@@ -276,7 +291,7 @@ def scale_features(df_train, df_test, feature_cols):
     return df_train, df_test, scaler
 
 
-def save_outputs(df_train, df_test, feature_cols, scaler):
+def save_outputs(df_train, df_test, feature_cols, scaler, split_strategy):
     """Save processed datasets and metadata."""
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -304,6 +319,7 @@ def save_outputs(df_train, df_test, feature_cols, scaler):
         "n_test_rows": len(df_test),
         "n_train_patients": int(df_train["Anonymize_ID"].nunique()),
         "n_test_patients": int(df_test["Anonymize_ID"].nunique()),
+        "split_stratification_mode": split_strategy,
     }
     meta_path = os.path.join(OUTPUT_DIR, "preprocessing_metadata.json")
     with open(meta_path, "w") as f:
@@ -319,7 +335,7 @@ def main():
     df = load_and_clean()
     df = build_ground_truth(df)
 
-    df_train, df_test = patient_grouped_split(df, target_col="gt_majority")
+    df_train, df_test, split_strategy = patient_grouped_split(df, target_col="gt_majority")
 
     print("Cohort-specific KNN imputation (training-only fit):")
     df_train, df_test, _ = cohort_specific_knn_impute(
@@ -336,7 +352,7 @@ def main():
     print("Scaling:")
     df_train, df_test, scaler = scale_features(df_train, df_test, all_features)
 
-    save_outputs(df_train, df_test, all_features, scaler)
+    save_outputs(df_train, df_test, all_features, scaler, split_strategy)
 
     print("=" * 60)
     print("PREPROCESSING COMPLETE — proceed to Step 4")

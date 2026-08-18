@@ -1,5 +1,5 @@
 experiment,model,rmse,mae,r2,binary_accuracy_at_0p5,binary_roc_auc_vs_thresholded_truth
-Vote-fraction target,Linear Regression,0.3058,0.2576,0.1831,0.5122,0.5952
-Vote-fraction target,Random Forest Regressor,0.3248,0.2643,0.0785,0.561,0.6833
-Vote-fraction target,Gradient Boosting Regressor,0.3482,0.2899,-0.0593,0.6098,0.681
-Vote-fraction target,SVR (RBF),0.3289,0.2756,0.0551,0.6098,0.6857
+Vote-fraction target,Linear Regression,0.3173,0.2544,0.106,0.619,0.643
+Vote-fraction target,Random Forest Regressor,0.3524,0.3005,-0.1026,0.5238,0.524
+Vote-fraction target,Gradient Boosting Regressor,0.3695,0.3166,-0.2124,0.4524,0.4828
+Vote-fraction target,SVR (RBF),0.3789,0.3168,-0.2749,0.4762,0.4622

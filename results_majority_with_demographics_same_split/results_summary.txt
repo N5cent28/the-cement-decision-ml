@@ -1,0 +1,42 @@
+THA Cement Decision — Majority + Demographics Summary
+==========================================================
+
+Cross-validation (grouped ROC-AUC):
+  Logistic Regression: 0.7049 +/- 0.1202
+  Random Forest: 0.6503 +/- 0.1395
+  Gradient Boosting: 0.6068 +/- 0.1313
+  SVM (RBF): 0.6591 +/- 0.1153
+
+Test set metrics:
+
+  Logistic Regression:
+    accuracy: 0.6279
+    precision: 0.5789
+    recall: 0.5789
+    f1: 0.5789
+    roc_auc: 0.7193
+    pr_auc: 0.6869
+
+  Random Forest:
+    accuracy: 0.6512
+    precision: 0.625
+    recall: 0.5263
+    f1: 0.5714
+    roc_auc: 0.7237
+    pr_auc: 0.6574
+
+  Gradient Boosting:
+    accuracy: 0.6279
+    precision: 0.5789
+    recall: 0.5789
+    f1: 0.5789
+    roc_auc: 0.6754
+    pr_auc: 0.6437
+
+  SVM (RBF):
+    accuracy: 0.6977
+    precision: 0.65
+    recall: 0.6842
+    f1: 0.6667
+    roc_auc: 0.7566
+    pr_auc: 0.7392
