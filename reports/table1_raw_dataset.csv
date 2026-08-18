@@ -1,0 +1,26 @@
+Characteristic,Raw dataset (N=212 hips)
+"Hips, n",212
+"Patients, n",116
+"Age, years, mean ± SD (patient-level)",62.0 ± 10.6
+Sex — Male (patient-level),50 (43.1%)
+Sex — Female (patient-level),66 (56.9%)
+"Weight, kg, mean ± SD (patient-level)",86.1 ± 16.3
+"Height, cm, mean ± SD (patient-level)",171.8 ± 8.9
+"BMI, kg/m², mean ± SD (patient-level)",29.2 ± 5.0
+Cohort 1 (Philips) — hips,136 (64.2%)
+Cohort 1 (Philips) — patients,71
+Cohort 2 (Toshiba) — hips,76 (35.8%)
+Cohort 2 (Toshiba) — patients,45
+Hip side — Left,106 (50.0%)
+Hip side — Right,106 (50.0%)
+Operated side — Left,87 (41.0%)
+Operated side — Right,125 (59.0%)
+"Bilateral scans (2 hips), patients",96
+"Unilateral scans (1 hip), patients",20
+Majority vote — Cemented,85 (40.1%)
+Majority vote — Non-cemented,127 (59.9%)
+Scan note — Auto-processed,183 (86.3%)
+Scan note — Questionable Quality,20 (9.4%)
+Scan note — Questionable scan quality,6 (2.8%)
+Scan note — Unusable with same HU range,2 (0.9%)
+Scan note — try again with different thresholds,1 (0.5%)

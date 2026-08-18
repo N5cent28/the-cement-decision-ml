@@ -1,13 +1,13 @@
-Anonymize_ID,hip_side,Cohort_group,notes,exclusion_categories,exclusion_details
-6,Left,Cohort_1,Questionable Quality,anomalous_bmd,zone_3_bmd = 0.14 (< 0.5); zone_4_bmd = 0.14 (< 0.5); zone_5_bmd = 0.14 (< 0.5)
-6,Right,Cohort_1,Questionable scan quality,anomalous_bmd,zone_3_bmd = 0.14 (< 0.5); zone_4_bmd = 0.14 (< 0.5); zone_5_bmd = 0.14 (< 0.5)
-7,Right,Cohort_1,Questionable Quality,anomalous_cortical_area; anomalous_cortical_thickness,cortical_area_mm2 = 0.47 (< 50.0); cortical_thickness_mm = 0.74 (< 2.0)
-14,Right,Cohort_1,Unusable with same HU range,anomalous_bmd; anomalous_cortical_area; anomalous_cortical_thickness; unusable_scan_note,cortical_area_mm2 = 4.54 (< 50.0); cortical_thickness_mm = 1.24 (< 2.0); notes = 'Unusable with same HU range'; zone_4_bmd = 0.14 (< 0.5)
-17,Left,Cohort_1,Auto-processed,anomalous_bmd,zone_4_bmd = 0.14 (< 0.5)
-17,Right,Cohort_1,Auto-processed,anomalous_bmd,zone_4_bmd = 0.14 (< 0.5); zone_5_bmd = 0.14 (< 0.5)
-20,Right,Cohort_1,Questionable Quality,anomalous_cortical_area,cortical_area_mm2 = 3.96 (< 50.0)
-24,Left,Cohort_1,Auto-processed,anomalous_bmd,zone_4_bmd = 0.14 (< 0.5)
-24,Right,Cohort_1,try again with different thresholds,anomalous_bmd,zone_4_bmd = 0.14 (< 0.5)
-26,Left,Cohort_1,Auto-processed,anomalous_bmd,zone_4_bmd = 0.14 (< 0.5)
-30,Right,Cohort_1,Unusable with same HU range,anomalous_bmd; unusable_scan_note,notes = 'Unusable with same HU range'; zone_4_bmd = 0.14 (< 0.5)
-74,Left,Cohort_2,Auto-processed,anomalous_bmd,zone_4_bmd = 0.00 (< 0.5)
+Anonymize_ID,hip_side,Cohort_group,notes,exclusion_categories,exclusion_details,n_reason_flags
+6,Left,Cohort_1,Questionable Quality,anomalous_bmd,zone_3_bmd = 0.14 (< 0.5); zone_4_bmd = 0.14 (< 0.5); zone_5_bmd = 0.14 (< 0.5),3
+6,Right,Cohort_1,Questionable scan quality,anomalous_bmd,zone_3_bmd = 0.14 (< 0.5); zone_4_bmd = 0.14 (< 0.5); zone_5_bmd = 0.14 (< 0.5),3
+7,Right,Cohort_1,Questionable Quality,anomalous_cortical_area; anomalous_cortical_thickness,cortical_area_mm2 = 0.47 (< 50.0); cortical_thickness_mm = 0.74 (< 2.0),2
+14,Right,Cohort_1,Unusable with same HU range,anomalous_bmd; anomalous_cortical_area; anomalous_cortical_thickness; unusable_scan_note,cortical_area_mm2 = 4.54 (< 50.0); cortical_thickness_mm = 1.24 (< 2.0); notes = 'Unusable with same HU range'; zone_4_bmd = 0.14 (< 0.5),4
+17,Left,Cohort_1,Auto-processed,anomalous_bmd,zone_4_bmd = 0.14 (< 0.5),1
+17,Right,Cohort_1,Auto-processed,anomalous_bmd,zone_4_bmd = 0.14 (< 0.5); zone_5_bmd = 0.14 (< 0.5),2
+20,Right,Cohort_1,Questionable Quality,anomalous_cortical_area,cortical_area_mm2 = 3.96 (< 50.0),1
+24,Left,Cohort_1,Auto-processed,anomalous_bmd,zone_4_bmd = 0.14 (< 0.5),1
+24,Right,Cohort_1,try again with different thresholds,anomalous_bmd,zone_4_bmd = 0.14 (< 0.5),1
+26,Left,Cohort_1,Auto-processed,anomalous_bmd,zone_4_bmd = 0.14 (< 0.5),1
+30,Right,Cohort_1,Unusable with same HU range,anomalous_bmd; unusable_scan_note,notes = 'Unusable with same HU range'; zone_4_bmd = 0.14 (< 0.5),2
+74,Left,Cohort_2,Auto-processed,anomalous_bmd,zone_4_bmd = 0.00 (< 0.5),1

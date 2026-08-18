@@ -1,9 +1,13 @@
 """
 Step 1a: Table 1 and Excluded-Hip Log
 ====================================
-Build publication-ready Table 1 for the ML analysis cohort (hips retained
-after the same cleaning rules used in 03_preprocessing.py), plus a detailed
-log of excluded hips and exclusion reasons.
+Build publication-ready Table 1 characteristics for:
+  - the raw/initial dataset (all 212 hips, before ML cleaning),
+  - the full ML analysis cohort (hips retained after the same cleaning
+    rules used in 03_preprocessing.py),
+  - ML Cohort 1 (Philips) alone,
+  - ML Cohort 2 (Toshiba) alone,
+plus a detailed log of excluded hips and exclusion reasons.
 
 Run:
   python3.11 08_table1_dataset_summary.py
@@ -208,8 +212,8 @@ def add_ground_truth(df):
     return out
 
 
-def build_table1(df):
-    """Publication-style Table 1 for the ML cohort."""
+def build_table1(df, column_label, include_cohort_breakdown=True):
+    """Publication-style Table 1 for an arbitrary hip-level dataframe."""
     n_hips = len(df)
     n_patients = df["Anonymize_ID"].nunique()
 
@@ -225,23 +229,30 @@ def build_table1(df):
         ("Weight, kg, mean ± SD (patient-level)", mean_sd(patients["weight"])),
         ("Height, cm, mean ± SD (patient-level)", mean_sd(patients["height"])),
         ("BMI, kg/m², mean ± SD (patient-level)", mean_sd(patients["BMI"])),
-        ("Cohort 1 (Philips) — hips", n_pct((df["Cohort_group"] == "Cohort_1").sum(), n_hips)),
-        (
-            "Cohort 1 (Philips) — patients",
-            str(df.loc[df["Cohort_group"] == "Cohort_1", "Anonymize_ID"].nunique()),
-        ),
-        ("Cohort 2 (Toshiba) — hips", n_pct((df["Cohort_group"] == "Cohort_2").sum(), n_hips)),
-        (
-            "Cohort 2 (Toshiba) — patients",
-            str(df.loc[df["Cohort_group"] == "Cohort_2", "Anonymize_ID"].nunique()),
-        ),
+    ]
+
+    if include_cohort_breakdown:
+        rows.extend([
+            ("Cohort 1 (Philips) — hips", n_pct((df["Cohort_group"] == "Cohort_1").sum(), n_hips)),
+            (
+                "Cohort 1 (Philips) — patients",
+                str(df.loc[df["Cohort_group"] == "Cohort_1", "Anonymize_ID"].nunique()),
+            ),
+            ("Cohort 2 (Toshiba) — hips", n_pct((df["Cohort_group"] == "Cohort_2").sum(), n_hips)),
+            (
+                "Cohort 2 (Toshiba) — patients",
+                str(df.loc[df["Cohort_group"] == "Cohort_2", "Anonymize_ID"].nunique()),
+            ),
+        ])
+
+    rows.extend([
         ("Hip side — Left", n_pct((df["hip_side"] == "Left").sum(), n_hips)),
         ("Hip side — Right", n_pct((df["hip_side"] == "Right").sum(), n_hips)),
         ("Operated side — Left", n_pct((df["op_side"] == "Left").sum(), n_hips)),
         ("Operated side — Right", n_pct((df["op_side"] == "Right").sum(), n_hips)),
         ("Bilateral scans (2 hips), patients", str((df.groupby("Anonymize_ID").size() == 2).sum())),
         ("Unilateral scans (1 hip), patients", str((df.groupby("Anonymize_ID").size() == 1).sum())),
-    ]
+    ])
 
     if "gt_majority" in df.columns:
         rows.extend([
@@ -252,7 +263,7 @@ def build_table1(df):
     for note, cnt in df["notes"].value_counts().items():
         rows.append((f"Scan note — {note}", n_pct(cnt, n_hips)))
 
-    table = pd.DataFrame(rows, columns=["Characteristic", f"ML cohort (N={n_hips} hips)"])
+    table = pd.DataFrame(rows, columns=["Characteristic", column_label])
     return table
 
 
@@ -287,11 +298,47 @@ def main():
     excluded_path = os.path.join(REPORT_DIR, "excluded_hips_with_reasons.csv")
     excluded.to_csv(excluded_path, index=False)
 
-    table1 = build_table1(cleaned)
+    table1 = build_table1(cleaned, f"ML cohort (N={len(cleaned)} hips)")
     table1_csv = os.path.join(REPORT_DIR, "table1_ml_dataset.csv")
     table1_md = os.path.join(REPORT_DIR, "table1_ml_dataset.md")
     table1.to_csv(table1_csv, index=False)
     save_markdown_table(table1, table1_md, "Table 1. ML Analysis Cohort Characteristics")
+
+    # Raw starting dataset (all 212 hips, before any ML cleaning/exclusions)
+    raw_labeled = add_ground_truth(raw)
+    table1_raw = build_table1(raw_labeled, f"Raw dataset (N={len(raw)} hips)")
+    table1_raw_csv = os.path.join(REPORT_DIR, "table1_raw_dataset.csv")
+    table1_raw_md = os.path.join(REPORT_DIR, "table1_raw_dataset.md")
+    table1_raw.to_csv(table1_raw_csv, index=False)
+    save_markdown_table(
+        table1_raw, table1_raw_md, "Table 1. Initial/Raw Dataset Characteristics (All Hips)"
+    )
+
+    # ML cohort split by imaging cohort (Cohort 1 = Philips, Cohort 2 = Toshiba)
+    cleaned_c1 = cleaned[cleaned["Cohort_group"] == "Cohort_1"].copy()
+    cleaned_c2 = cleaned[cleaned["Cohort_group"] == "Cohort_2"].copy()
+
+    table1_c1 = build_table1(
+        cleaned_c1, f"Cohort 1 / Philips, ML cohort (N={len(cleaned_c1)} hips)",
+        include_cohort_breakdown=False,
+    )
+    table1_c1_csv = os.path.join(REPORT_DIR, "table1_ml_cohort1.csv")
+    table1_c1_md = os.path.join(REPORT_DIR, "table1_ml_cohort1.md")
+    table1_c1.to_csv(table1_c1_csv, index=False)
+    save_markdown_table(
+        table1_c1, table1_c1_md, "Table 1. ML Cohort 1 (Philips) Characteristics"
+    )
+
+    table1_c2 = build_table1(
+        cleaned_c2, f"Cohort 2 / Toshiba, ML cohort (N={len(cleaned_c2)} hips)",
+        include_cohort_breakdown=False,
+    )
+    table1_c2_csv = os.path.join(REPORT_DIR, "table1_ml_cohort2.csv")
+    table1_c2_md = os.path.join(REPORT_DIR, "table1_ml_cohort2.md")
+    table1_c2.to_csv(table1_c2_csv, index=False)
+    save_markdown_table(
+        table1_c2, table1_c2_md, "Table 1. ML Cohort 2 (Toshiba) Characteristics"
+    )
 
     summary_path = os.path.join(REPORT_DIR, "table1_exclusion_summary.txt")
     with open(summary_path, "w", encoding="utf-8") as f:
@@ -308,11 +355,25 @@ def main():
                 f"({row['Cohort_group']}): {row['exclusion_details']}\n"
             )
 
-    print(f"\nSaved:\n  {excluded_path}\n  {table1_csv}\n  {table1_md}\n  {summary_path}")
+    saved_paths = [
+        excluded_path,
+        table1_csv, table1_md,
+        table1_raw_csv, table1_raw_md,
+        table1_c1_csv, table1_c1_md,
+        table1_c2_csv, table1_c2_md,
+        summary_path,
+    ]
+    print("\nSaved:\n  " + "\n  ".join(saved_paths))
     print("\nExcluded hips:")
     print(excluded.to_string(index=False))
-    print("\nTable 1 preview:")
+    print("\nTable 1 preview (ML cohort):")
     print(table1.to_string(index=False))
+    print("\nTable 1 preview (raw dataset):")
+    print(table1_raw.to_string(index=False))
+    print("\nTable 1 preview (ML Cohort 1):")
+    print(table1_c1.to_string(index=False))
+    print("\nTable 1 preview (ML Cohort 2):")
+    print(table1_c2.to_string(index=False))
 
 
 if __name__ == "__main__":
