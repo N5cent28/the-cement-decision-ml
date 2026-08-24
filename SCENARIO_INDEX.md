@@ -35,7 +35,7 @@ script, that logic belongs in `common_preprocessing.py` instead.
 | `gt_original` | Original operating surgeon's real-time decision only | `03_preprocessing.py`, `03j_preprocessing_original_ct_only.py` |
 | `gt_vote_fraction` | Continuous fraction of the 3 raters voting cemented (regression target) | `03b_preprocessing_vote_fraction.py` |
 | `gt_h3d_agree` | Halldor and 3D surgeon agree (2 of 3 raters; **excludes** the original surgeon's vote) | `03e_preprocessing_agree_ct_only.py` |
-| `gt_unanimous` | All 3 raters agree (true 3-way unanimous consensus) | `03g_preprocessing_unanimous_ct_only.py` |
+| `gt_unanimous` | All 3 raters agree | `03g_preprocessing_unanimous_ct_only.py` |
 
 `gt_h3d_agree` and `gt_unanimous` are easy to confuse — `gt_h3d_agree` only
 requires 2 named raters to match and says nothing about the original

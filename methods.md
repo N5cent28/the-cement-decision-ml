@@ -2,13 +2,13 @@
 
 **Working title:** The Artificial Intelligence versus the Orthopaedic Surgeon in Decision-Making of Cemented or Uncemented Total Hip Arthroplasty
 
-**Last updated:** 2026-08-23
+**Last updated:** 2026-08-24
 
 ---
 
 ## 1. Study Design
 
-Retrospective cohort study using preoperative CT scans from patients who underwent total hip arthroplasty (THA) at Landspítali University Hospital. The study develops supervised machine learning models to classify optimal THA implant fixation (cemented vs. non-cemented) using exclusively CT-derived imaging features.
+Retrospective cohort study using preoperative CT scans from patients who underwent total hip arthroplasty (THA) at Landspítali University Hospital. The study develops supervised machine learning models to classify implant fixation (cemented vs. non-cemented) from CT-derived imaging features, demographic variables, and their combination, evaluated across multiple ground-truth definitions (Section 3) to characterize both the predictive value of quantitative imaging and its sensitivity to label uncertainty.
 
 ## 2. Data Sources
 
@@ -47,13 +47,15 @@ Each hip (left/right) constitutes one observation. Patients with bilateral scans
 
 ## 3. Ground Truth Definition
 
-Three ground truth strategies were defined to examine the impact of label uncertainty:
+Five ground truth strategies were defined to examine the impact of label uncertainty, all built from the same three surgeon classifications (`common_preprocessing.py`):
 
-1. **Original surgeon only:** The operating surgeon's preoperative decision serves as the label.
-2. **Majority vote:** A hip is labeled "cemented" if at least 2 of 3 surgeons classified it as cemented; otherwise "non-cemented."
-3. **Vote fraction (probabilistic):** The fraction of surgeons voting "cemented" (0, 0.33, 0.67, or 1.0) provides a soft label for potential probabilistic training experiments.
+1. **Majority vote (`gt_majority`):** A hip is labeled "cemented" if at least 2 of the 3 raters (original surgeon, Halldór, third surgeon) classified it as cemented; otherwise "non-cemented." This is the **primary ground truth** used in the main analysis (scenarios 1, 3, 4).
+2. **Original surgeon only (`gt_original`):** The operating surgeon's real-time decision alone serves as the label, independent of the other two raters (scenarios 6, 10, 11).
+3. **Vote fraction (`gt_vote_fraction`, probabilistic):** The fraction of the 3 raters voting "cemented" (0, 0.33, 0.67, or 1.0) is used as a continuous regression target (scenarios 2, 12, 13).
+4. **Halldór + 3D-surgeon agreement (`gt_h3d_agree`):** A hip is labeled only when the two independent reviewers (Halldór and the third surgeon) agree with each other; hips where they disagree are excluded. **This requires only 2 of 3 raters to agree and does not require the original surgeon's vote to match** — it is a 2-of-3 agreement subset, not full unanimity (scenario 5, kept for continuity with earlier reporting).
+5. **Unanimous agreement (`gt_unanimous`):** A hip is labeled only when all 3 raters (including the original surgeon) agree with each other; hips with any disagreement are excluded. This is the correct "all surgeons agree" ground truth (scenarios 7, 8, 9).
 
-The primary analysis uses the **majority vote** label.
+Ground truths 4 and 5 are easy to confuse and are named deliberately to keep them distinct — `gt_h3d_agree` was originally intended to represent "unanimous agreement" in an earlier revision of this analysis, but on inspection only enforces 2-of-3 agreement; see `common_preprocessing.py`'s module docstring for the full history. Every ground truth other than the primary majority-vote label is treated as a sensitivity analysis (Section 9), each evaluated against all three feature sets (CT-only, demographics-only, CT+demographics) — see "Comparative sensitivity analyses" in the Discussion for the full 13-scenario matrix.
 
 ### 3.1 Inter-Rater Agreement
 
@@ -88,7 +90,7 @@ All preprocessing was performed in a leakage-safe manner: imputation and scaling
 - **Stratification:** Patient-level stratified split by target + cohort where feasible, with explicit fallback order: `target_plus_cohort` -> `target_only_fallback` -> `unstratified_fallback`
 - **When reusing the “same split” in later analyses:** this refers to the same patient/hip membership in train and test (not just another 80/20 split). Matching was verified at the row key level (`Anonymize_ID` + `hip_side`).
 
-The split mode actually used is recorded in each preprocessing metadata file as `split_stratification_mode`, and repeated-split experiments aggregate usage in `results_repeated_splits_scenarios_1_3_4_5_6/split_stratification_usage.csv`.
+The split mode actually used is recorded in each preprocessing metadata file as `split_stratification_mode`, and repeated-split experiments aggregate usage in `results_repeated_splits_all_scenarios/split_stratification_usage.csv`.
 
 ### 5.2 Missing Value Imputation
 
@@ -118,26 +120,39 @@ StandardScaler (zero mean, unit variance) was fitted on the training set and app
 
 ## 6. Machine Learning Models
 
-Four classifiers were trained and compared:
+For each classification scenario, four classifiers were trained and independently evaluated — there was no algorithm selection step upstream of fitting all four:
 
-| Model | Key Hyperparameters |
-|-------|-------------------|
-| Logistic Regression | solver=lbfgs, max_iter=2000 |
-| Random Forest | n_estimators=200, min_samples_leaf=3 |
-| Gradient Boosting | n_estimators=200, max_depth=3, learning_rate=0.1 |
-| SVM (RBF kernel) | probability=True, default C and gamma |
+| Model | Hyperparameters | Notes |
+|-------|-------------------|-------|
+| Logistic Regression | `solver=lbfgs`, `max_iter=2000`, `random_state=42` | L2-regularized (scikit-learn default `C=1.0`); no penalty search performed |
+| Random Forest | `n_estimators=200`, `max_depth=None`, `min_samples_leaf=3`, `random_state=42` | Unlimited tree depth, minimum 3 samples per leaf |
+| Gradient Boosting | `n_estimators=200`, `max_depth=3`, `learning_rate=0.1`, `min_samples_leaf=3`, `random_state=42` | scikit-learn's `GradientBoostingClassifier` |
+| SVM (RBF kernel) | `kernel=rbf`, `probability=True`, `random_state=42`, default `C` and `gamma` | Probability estimates use scikit-learn's internal 5-fold Platt-scaling calibration |
 
-Demographic variables (age, sex, weight, height, BMI) were excluded from the baseline scenario (1) to establish a CT-only reference point, but are included as model features in scenarios 3, 4, 6, and 7–13 to quantify their marginal and standalone contribution (see "Comparative sensitivity analyses" below). `Anonymize_ID` was never used as a feature in any scenario.
+For the vote-fraction (regression) scenarios (2, 12, 13), the analogous four regressors were used instead: Linear Regression (no regularization); Random Forest Regressor (`n_estimators=300`, `min_samples_leaf=3`); Gradient Boosting Regressor (`n_estimators=250`, `max_depth=3`, `learning_rate=0.05`, `min_samples_leaf=3`); and SVR with an RBF kernel (`C=1.0`, `epsilon=0.05`).
+
+**All hyperparameters above were fixed a priori and were not tuned.** No grid search, random search, or nested cross-validation was performed to optimize any hyperparameter for any scenario. The cross-validation described in Section 7.1 is a reported performance diagnostic, not a tuning procedure — every model is fit once on the full training set with the hyperparameters listed above, regardless of its cross-validation score.
+
+Demographic variables (age, sex, weight, height, BMI) were excluded from the baseline scenario (1) to establish a CT-only reference point, but are included as model features in scenarios 3, 4, 6, and 7–13 to quantify their marginal and standalone contribution (see "Comparative sensitivity analyses" below). `Anonymize_ID` was never used as a feature in any scenario. A single fixed random seed (`random_state=42`) was used everywhere a stochastic scikit-learn operation accepted one (train/test splitting, KNN imputation tie-breaking, Random Forest / Gradient Boosting tree construction, SVM probability calibration) — this makes each individual run reproducible given identical library versions, but does not eliminate cross-scenario sampling variance, which is instead quantified directly via the repeated-split analysis in Section 7.1 and the Discussion.
 
 ## 7. Model Evaluation
 
 ### 7.1 Cross-Validation
 
-Grouped 5-fold cross-validation was used during training, with patient ID as the grouping variable, to obtain unbiased performance estimates and prevent leakage.
+Grouped 5-fold cross-validation (`sklearn.model_selection.GroupKFold(n_splits=5)`) was run on the training set for every one of the four candidate models, in every one of the 13 scenarios, using an identical procedure implemented independently in each `04*_train_evaluate*.py` script. Patient ID (`Anonymize_ID`) was used as the grouping variable, so no patient's hips could appear in both the fold used for fitting and the fold used for scoring within a single cross-validation split — this prevents the within-patient leakage that a plain (non-grouped) k-fold split would allow for the ~80% of patients with bilateral imaging.
+
+Classification scenarios were scored by ROC-AUC per fold; the three vote-fraction (regression) scenarios were scored by negative root-mean-squared-error and R² per fold. The mean and standard deviation of the five fold scores are reported for every model/scenario combination.
+
+Two properties of this procedure are worth stating explicitly, since they affect how the cross-validation numbers should be read:
+
+- **`GroupKFold` groups by patient but does not stratify by outcome class or cohort.** Unlike the train/test split (Section 5.1), which explicitly stratifies by target and `Cohort_group`, the 5 cross-validation folds are formed only by evenly distributing patient groups — class balance and cohort mix can vary across folds, particularly in the smaller scenario subsets (e.g. the unanimous-agreement scenarios, train n≈68).
+- **Cross-validation here is a reported diagnostic, not a model-selection or tuning mechanism.** As noted in Section 6, hyperparameters are fixed in advance and every model is fit once on the full training set regardless of its cross-validation score. The "best model" reported for each scenario (Section 7.4, Discussion) is chosen by **held-out test-set ROC-AUC**, not by cross-validation performance — see the note at the end of Section 7.4 for why this distinction matters.
+
+Because the same `GroupKFold(n_splits=5)` procedure, the same four algorithms with the same fixed hyperparameters, and the same scoring metrics are applied identically across all 13 scenarios, cross-validation results are directly comparable across scenarios in the sense that no scenario received special treatment. That said, a single fold assignment on datasets this size is still a noisy estimate, in the same way a single train/test split is (Section 7.5) — Section 7.6 (repeated-split analysis) addresses this for the test-set numbers, though it does not itself re-run cross-validation on each repeat.
 
 ### 7.2 Test Set Metrics
 
-The following metrics were computed on the held-out test set:
+The following metrics were computed once on the held-out test set, using each model fit on the full training set (not the cross-validation folds):
 - ROC-AUC
 - PR-AUC (precision-recall area under curve, important if class imbalance exists)
 - Accuracy
@@ -146,21 +161,47 @@ The following metrics were computed on the held-out test set:
 - F1 score
 - Confusion matrix
 
+For the three vote-fraction (regression) scenarios, the native regression metrics (RMSE, MAE, R²) are reported, along with the same precision/recall/F1/accuracy/ROC-AUC computed after thresholding the predicted vote fraction at 0.5, so that every scenario — classification or regression — has a comparable classification-style metric set. All metrics for all 13 scenarios and 4 models are collected in one table by `08_build_all_models_metrics_table.py` (`reports/all_models_metrics_table.md`).
+
 ### 7.3 Cohort-Specific Evaluation
 
-All test metrics were also reported separately for Cohort_1 and Cohort_2 to assess the impact of cohort/scanner differences on model performance.
+Each already-trained model (fit on the pooled training set, which mixes both cohorts) was additionally evaluated separately on the Cohort_1 and Cohort_2 subsets of the test set, to check whether performance differed by scanner. This evaluates how a pooled model generalizes to each cohort's test hips — it is not equivalent to training a cohort-specific model from scratch, which was not performed (see Section 9).
 
 ### 7.4 Feature Importance
 
-For tree-based models (Random Forest, Gradient Boosting), feature importance scores were extracted to identify which CT-derived measurements contribute most to the classification.
+Feature importance was computed by a single script, `06_feature_importance_best_model_scenarios_1_3_4_5_6.py`, for the **classification scenarios only** (1, 3, 4, 5, 6, 7, 8, 9, 10, 11). The three vote-fraction (regression) scenarios (2, 12, 13) are out of scope for this script and have no feature-importance output.
+
+For each classification scenario, importance was computed for exactly **one** model — the model with the highest **test-set** ROC-AUC in that scenario (i.e., the same "best model" reported in the Discussion's results table), refit from scratch on that scenario's training data with the hyperparameters in Section 6. Importance was **not** computed for the other three candidate models in each scenario.
+
+The importance method used depends on the winning model's type, and these two methods are not on a directly comparable scale:
+
+- **Tree-based models (Random Forest, Gradient Boosting):** native `feature_importances_` (impurity-based mean decrease in Gini/variance across all trees), computed from the fitted model on the training data. This is scenario 1's and scenario 5's method (Random Forest was the best-by-test-ROC-AUC model in both).
+- **Non-tree models (Logistic Regression, SVM):** permutation importance (`sklearn.inspection.permutation_importance`), computed on the **held-out test set**, scoring by ROC-AUC, with `n_repeats=30` and `random_state=42`. Each reported value is the mean decrease in test ROC-AUC across the 30 repeats when that feature's values are randomly shuffled; the standard deviation across repeats is also recorded. This is the method for every other scenario (3, 4, 6, 7, 8, 9, 10, 11), where Logistic Regression or SVM was the best-by-test-ROC-AUC model.
+
+Two limitations of this procedure should be stated explicitly, since the question of whether feature importance was computed "systematically and without bias" doesn't have a single yes/no answer:
+
+- **The selection rule is applied identically and mechanically across all 10 classification scenarios** (always: pick the highest-test-ROC-AUC model, then apply the importance method appropriate to its type) — in that sense, the procedure is systematic and not scenario-specific favoritism.
+- **However, it is not free of the "best-of-4-models" selection-on-the-test-set concern already raised elsewhere in this document.** Choosing which model to explain based on the same test-set score used to report that model's headline performance means the reported feature ranking is conditioned on a metric drawn from the same 19–43-hip held-out set — a different resplit could plausibly select a different winning model (and therefore a different importance method) for a given scenario, as the repeated-split results in Section 7.6 make clear the "best model" is not stable across resplits for some scenarios.
+- **Native tree importance and permutation importance measure different things and are not comparable in magnitude across scenarios.** A comparison like "age had importance 0.15 in the combined model, versus outer radius's 0.12 in the CT-only model" is only valid if both were computed the same way; when the winning model differs by type between two scenarios being compared, only the *rank order* of features within each scenario should be interpreted, not the numeric values across scenarios.
+
+Per-scenario feature-importance rankings, plots, and the method/model used for each are collected in `results_feature_importance_best_model/best_model_feature_importance_summary.csv`.
+
+### 7.5 "Best Model" Selection Criterion
+
+Throughout this document (results tables, Discussion, feature importance), "best model" for a given scenario means the model with the **highest test-set ROC-AUC among the four candidates fit for that scenario** — never the model with the highest cross-validation score, and never a model chosen via a held-out validation set separate from the final test set. Because model selection and final performance reporting use the same test set, the reported "best model" ROC-AUC for each scenario is optimistically biased relative to what an independent validation would show; the size of that bias is not separately quantified in this study. The repeated-split analysis (Section 7.6) partially addresses this by showing how much the identity of the "best" model and its score vary across 30 independent resplits.
+
+### 7.6 Repeated-Split Robustness Check
+
+Because the train/test split (Section 5.1), cross-validation folds (Section 7.1), and "best model" selection (Section 7.5) are all sensitive to which single random split of patients was drawn, `07_repeated_grouped_split_eval.py` independently re-runs the entire preprocessing-through-evaluation pipeline **30 times per scenario** (`test_size=0.20`, seeds 100–129), for all 13 scenarios, using the same cleaning, imputation, feature engineering, and model hyperparameters described above but a different patient-level train/test split each time. For each of the resulting 30×13×4 (scenario × repeat × model) runs, the same test-set metrics as Section 7.2 are recorded, and an empirical 95% confidence interval (2.5th–97.5th percentile of the 30 repeats) is reported per scenario/model in addition to the mean. Results and figures are in `results_repeated_splits_all_scenarios/`; see the Discussion for the full results table and its interpretation.
 
 ## 8. Software & Reproducibility
 
-- **Language:** Python 3.x
-- **Key libraries:** pandas, numpy, scikit-learn, scipy, statsmodels, matplotlib, seaborn
-- **Random seed:** 42 (used consistently across all stochastic operations)
+- **Language:** Python 3.13
+- **Key libraries and versions in the current environment:** pandas 3.0.5, NumPy 2.5.2, scikit-learn 1.9.0, SciPy 1.18.0, statsmodels 0.14.6, Matplotlib 3.11.1, seaborn 0.13.2
+- **Random seed:** 42 (used consistently across all stochastic operations: train/test splitting, KNN imputation, Random Forest / Gradient Boosting fitting, SVM probability calibration, permutation importance). The repeated-split analysis (Section 7.6) additionally uses seeds 100–129, one per repeat.
 - All pipeline steps are implemented as sequential scripts (`01_data_audit.py` through `08_build_all_models_metrics_table.py`) that produce intermediate outputs to enable inspection at each stage.
 - All cleaning rules, ground-truth definitions, patient-grouped split logic, imputation, and CT feature engineering are implemented once, in `common_preprocessing.py`, and imported by every `03*_preprocessing*.py` / `03*_build_*_same_split.py` script and by `07_repeated_grouped_split_eval.py`. See that file's module docstring for the full rationale and every `gt_*` ground-truth definition in one place.
+- **Known reproducibility gap:** re-running the unmodified, original scenario 5 and 6 scripts in the current environment does not reproduce the ROC-AUC values originally reported for those scenarios in an earlier revision of this document (see the corrected-figures note under "Discussion" below). Re-running the current pipeline against itself (e.g., `04_train_evaluate.py` twice in a row on unchanged input) *is* deterministic, and the current numbers throughout this document are internally consistent and reproducible from the currently committed code and data — but the drift against those specific older figures was never traced to a specific cause (a plausible contributor is scikit-learn's internal handling of `SVC(probability=True)`, which performs its own internal cross-validation for Platt-scaling calibration and has changed across scikit-learn versions). Readers reproducing this pipeline on a different scikit-learn version should expect small numeric differences from the values reported here and should treat the committed `model_results.json` files, not this document's prose, as the source of truth for the environment they used.
 
 ## 9. Sensitivity Analyses: Status
 
@@ -189,6 +230,7 @@ For tree-based models (Random Forest, Gradient Boosting), feature importance sco
 | 2026-08-23 | Added scenarios 7–13 to complete the 3×3 ground-truth × feature-set sensitivity matrix (unanimous agreement, original-surgeon-only, and vote-fraction targets each now tested against CT-only, demographics-only, and CT+demographics). Corrected scenario 5/6 prose figures to match committed result files, fixed a stale image reference, repointed the feature-importance script at current (non-stale) result directories, and removed orphaned pre-split-fix result directories (`results_majority/`, `results_majority_CT+Demographics/`, `results_majority_demographics_only/`). See `SCENARIO_INDEX.md`. |
 | 2026-08-23 | Added precision/recall/F1 to the vote-fraction scenarios (2, 12, 13), which previously reported only regression metrics. Added a consolidated all-scenarios metrics table (`08_build_all_models_metrics_table.py`, `reports/all_models_metrics_table.md`). Extended the repeated-split robustness check to all 13 scenarios with 30 repeats and 95% confidence intervals (`07_repeated_grouped_split_eval.py` → `results_repeated_splits_all_scenarios/`), joined into the master metrics table. Corrected a stale claim that demographics were excluded from all models, and marked the "cohort-specific models" and "questionable-quality-scan exclusion" sensitivity analyses explicitly as not done. |
 | 2026-08-23 | Consolidated the 13+ near-duplicated data-cleaning/ground-truth/split/imputation implementations across the `03*` scripts and `07` into one shared module, `common_preprocessing.py`. Verified byte-for-byte (train.csv/metadata) and value-for-value (repeated-split summary, max abs diff 0.0) that every refactored script produces identical output to its pre-refactor version before committing — this was a pure code-organization change with zero effect on any reported number. |
+| 2026-08-24 | Substantially expanded and corrected Sections 6–7 (previously vague/out of date): documented exact model hyperparameters for all 8 algorithms (4 classifiers + 4 regressors) and stated explicitly that none were tuned; rewrote Cross-Validation (7.1) to specify `GroupKFold(n_splits=5)` is applied identically across all 13 scenarios, that it is not stratified by class/cohort, and that it is a reported diagnostic rather than a model-selection mechanism; rewrote Feature Importance (7.4) to specify it only covers the 10 classification scenarios (not the 3 regression scenarios), only the single best-by-test-ROC-AUC model per scenario (not all 4), and uses two different, non-comparable methods depending on model type (native tree importance vs. 30-repeat test-set permutation importance) — with an explicit statement that this selection procedure, while applied identically everywhere, is not free of test-set-informed selection bias; added a new "Best Model Selection Criterion" section (7.5) making that bias explicit; added a new "Repeated-Split Robustness Check" procedural section (7.6). Also rewrote Section 1 (Study Design) and Section 3 (Ground Truth Definition), both of which were stale — Section 1 still said "exclusively CT-derived imaging features" despite Sections 3/4/6/7–13 using demographics, and Section 3 listed only 3 of the 5 ground truths actually in use (missing `gt_h3d_agree` and `gt_unanimous`). Fixed a stale link to the superseded `results_repeated_splits_scenarios_1_3_4_5_6/` directory, and added exact library versions and a documented reproducibility-gap caveat to Section 8. |
 
 ---
 
