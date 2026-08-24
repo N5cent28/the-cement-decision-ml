@@ -1,10 +1,19 @@
 """
-Best-model feature importance for scenarios 1, 3, 4, 5, and 6.
+Best-model feature importance for scenarios 1, 3, 4, 5, 6, 7, 8, 9, 10, and 11
+(all classification scenarios; vote-fraction scenarios 2, 12, 13 are
+regression tasks and are out of scope for this script).
 
 Method:
   - Pick best model per scenario by highest test ROC-AUC.
   - Tree models: native feature_importances_.
   - Non-tree models: permutation importance on test set (ROC-AUC scoring).
+
+Note: scenarios 1, 3, and 4 previously pointed at stale results directories
+(results_majority/, results_majority_CT+Demographics/,
+results_majority_demographics_only/) generated before a split-stratification
+fix; they now point at the current results/, results_majority_with_demographics_same_split/,
+and results_majority_demographics_only_same_split/ directories, matching the
+numbers reported in methods.md.
 
 Run:
   python 06_feature_importance_best_model_scenarios_1_3_4_5_6.py
@@ -29,15 +38,15 @@ FIG_DIR = os.path.join(OUT_DIR, "figures")
 
 SCENARIOS = {
     "scenario1_majority_ct_only": {
-        "results_json": "results_majority/model_results.json",
+        "results_json": "results/model_results.json",
         "processed_dir": "processed_data",
     },
     "scenario3_majority_ct_plus_demo": {
-        "results_json": "results_majority_CT+Demographics/model_results.json",
+        "results_json": "results_majority_with_demographics_same_split/model_results.json",
         "processed_dir": "processed_data_demographics_same_split",
     },
     "scenario4_majority_demo_only": {
-        "results_json": "results_majority_demographics_only/model_results.json",
+        "results_json": "results_majority_demographics_only_same_split/model_results.json",
         "processed_dir": "processed_data_demographics_only_same_split",
     },
     "scenario5_h3d_agree_ct_only": {
@@ -47,6 +56,26 @@ SCENARIOS = {
     "scenario6_original_ct_plus_demo": {
         "results_json": "results_scenario6_original_ct_plus_demo/model_results.json",
         "processed_dir": "processed_data_scenario6_original_ct_plus_demo",
+    },
+    "scenario7_unanimous_ct_only": {
+        "results_json": "results_unanimous_ct_only/model_results.json",
+        "processed_dir": "processed_data_unanimous_ct_only",
+    },
+    "scenario8_unanimous_demo_only": {
+        "results_json": "results_unanimous_demographics_only_same_split/model_results.json",
+        "processed_dir": "processed_data_unanimous_demographics_only_same_split",
+    },
+    "scenario9_unanimous_ct_plus_demo": {
+        "results_json": "results_unanimous_with_demographics_same_split/model_results.json",
+        "processed_dir": "processed_data_unanimous_with_demographics_same_split",
+    },
+    "scenario10_original_ct_only": {
+        "results_json": "results_original_ct_only/model_results.json",
+        "processed_dir": "processed_data_original_ct_only",
+    },
+    "scenario11_original_demo_only": {
+        "results_json": "results_original_demographics_only_same_split/model_results.json",
+        "processed_dir": "processed_data_original_demographics_only_same_split",
     },
 }
 
@@ -68,9 +97,11 @@ def build_model(name):
 
 
 def infer_target_col(variant):
-    if "scenario5_h3d_agree_ct_only" in variant or "scenario5_h3d_agreement_ct_only" in variant:
+    if "h3d_agree" in variant or "h3d_agreement" in variant:
         return "gt_h3d_agree"
-    if "scenario6_original_ct_plus_demo" in variant:
+    if "unanimous" in variant:
+        return "gt_unanimous"
+    if "original" in variant:
         return "gt_original"
     return "gt_majority"
 

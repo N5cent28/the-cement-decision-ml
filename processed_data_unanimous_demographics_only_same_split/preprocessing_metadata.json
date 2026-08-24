@@ -1,0 +1,28 @@
+{
+  "analysis_variant": "scenario8_unanimous_demographics_only",
+  "primary_target": "gt_unanimous",
+  "feature_columns": [
+    "patient_age_years",
+    "sex_binary",
+    "weight",
+    "height",
+    "BMI"
+  ],
+  "n_train_rows": 68,
+  "n_test_rows": 19,
+  "n_train_patients": 39,
+  "n_test_patients": 10,
+  "test_size": 0.2,
+  "random_state": 42,
+  "split_stratification_mode": "target_plus_cohort",
+  "base_split_source": "processed_data_unanimous_ct_only",
+  "demographic_feature_columns": [
+    "patient_age_years",
+    "sex_binary",
+    "weight",
+    "height",
+    "BMI"
+  ],
+  "notes": "Same row split as processed_data_unanimous_ct_only; demographics-only feature set.",
+  "ct_feature_columns": []
+}

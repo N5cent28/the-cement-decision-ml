@@ -1,0 +1,41 @@
+Scenario 7 (Unanimous 3/3 agreement, CT-only) Results
+========================================================
+
+Logistic Regression CV AUC: 0.7851 +/- 0.1235
+Random Forest CV AUC: 0.8194 +/- 0.1385
+Gradient Boosting CV AUC: 0.8141 +/- 0.1254
+SVM (RBF) CV AUC: 0.7882 +/- 0.1597
+
+Test metrics:
+
+Logistic Regression:
+  accuracy: 0.8421
+  precision: 1.0
+  recall: 0.625
+  f1: 0.7692
+  roc_auc: 0.9773
+  pr_auc: 0.975
+
+Random Forest:
+  accuracy: 0.7368
+  precision: 0.8
+  recall: 0.5
+  f1: 0.6154
+  roc_auc: 0.9432
+  pr_auc: 0.9207
+
+Gradient Boosting:
+  accuracy: 0.6316
+  precision: 0.5714
+  recall: 0.5
+  f1: 0.5333
+  roc_auc: 0.8295
+  pr_auc: 0.7993
+
+SVM (RBF):
+  accuracy: 0.8421
+  precision: 1.0
+  recall: 0.625
+  f1: 0.7692
+  roc_auc: 0.8977
+  pr_auc: 0.8966

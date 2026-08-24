@@ -1,0 +1,27 @@
+{
+  "analysis_variant": "scenario11_original_demographics_only",
+  "primary_target": "gt_original",
+  "feature_columns": [
+    "patient_age_years",
+    "sex_binary",
+    "weight",
+    "height",
+    "BMI"
+  ],
+  "n_train_rows": 161,
+  "n_test_rows": 39,
+  "n_train_patients": 88,
+  "n_test_patients": 23,
+  "test_size": 0.2,
+  "random_state": 42,
+  "split_stratification_mode": "target_plus_cohort",
+  "demographic_feature_columns": [
+    "patient_age_years",
+    "sex_binary",
+    "weight",
+    "height",
+    "BMI"
+  ],
+  "ct_feature_columns": [],
+  "notes": "Same row split as processed_data_original_ct_only (matches scenario 6); demographics-only feature set."
+}

@@ -1,0 +1,41 @@
+Scenario 10 (Original surgeon target, CT-only) Results
+=========================================================
+
+Logistic Regression CV AUC: 0.6183 +/- 0.0778
+Random Forest CV AUC: 0.6867 +/- 0.0293
+Gradient Boosting CV AUC: 0.6597 +/- 0.0631
+SVM (RBF) CV AUC: 0.6416 +/- 0.0757
+
+Test metrics:
+
+Logistic Regression:
+  accuracy: 0.5128
+  precision: 0.4783
+  recall: 0.6111
+  f1: 0.5366
+  roc_auc: 0.5212
+  pr_auc: 0.5035
+
+Random Forest:
+  accuracy: 0.5385
+  precision: 0.5
+  recall: 0.5
+  f1: 0.5
+  roc_auc: 0.4577
+  pr_auc: 0.4304
+
+Gradient Boosting:
+  accuracy: 0.5128
+  precision: 0.4762
+  recall: 0.5556
+  f1: 0.5128
+  roc_auc: 0.537
+  pr_auc: 0.493
+
+SVM (RBF):
+  accuracy: 0.4872
+  precision: 0.4375
+  recall: 0.3889
+  f1: 0.4118
+  roc_auc: 0.5503
+  pr_auc: 0.5041

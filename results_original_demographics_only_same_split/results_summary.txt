@@ -1,0 +1,41 @@
+Scenario 11 (Original surgeon target, demographics-only) Results
+==================================================================
+
+Logistic Regression CV AUC: 0.9399 +/- 0.0475
+Random Forest CV AUC: 0.9080 +/- 0.0510
+Gradient Boosting CV AUC: 0.8397 +/- 0.0932
+SVM (RBF) CV AUC: 0.9118 +/- 0.0838
+
+Test metrics:
+
+Logistic Regression:
+  accuracy: 0.8205
+  precision: 0.7619
+  recall: 0.8889
+  f1: 0.8205
+  roc_auc: 0.8095
+  pr_auc: 0.8256
+
+Random Forest:
+  accuracy: 0.7949
+  precision: 0.75
+  recall: 0.8333
+  f1: 0.7895
+  roc_auc: 0.746
+  pr_auc: 0.7074
+
+Gradient Boosting:
+  accuracy: 0.7949
+  precision: 0.75
+  recall: 0.8333
+  f1: 0.7895
+  roc_auc: 0.754
+  pr_auc: 0.7361
+
+SVM (RBF):
+  accuracy: 0.6923
+  precision: 0.625
+  recall: 0.8333
+  f1: 0.7143
+  roc_auc: 0.7143
+  pr_auc: 0.7099

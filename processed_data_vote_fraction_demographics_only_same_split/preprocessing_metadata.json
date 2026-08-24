@@ -1,0 +1,34 @@
+{
+  "analysis_variant": "scenario12_vote_fraction_demographics_only",
+  "primary_target": "gt_vote_fraction",
+  "feature_columns": [
+    "patient_age_years",
+    "sex_binary",
+    "weight",
+    "height",
+    "BMI"
+  ],
+  "ground_truth_columns": [
+    "gt_original",
+    "gt_majority",
+    "gt_vote_fraction"
+  ],
+  "test_size": 0.2,
+  "random_state": 42,
+  "knn_neighbors": 5,
+  "n_train_rows": 158,
+  "n_test_rows": 42,
+  "n_train_patients": 88,
+  "n_test_patients": 23,
+  "split_stratification_mode": "target_plus_cohort",
+  "base_split_source": "processed_data_vote_fraction",
+  "demographic_feature_columns": [
+    "patient_age_years",
+    "sex_binary",
+    "weight",
+    "height",
+    "BMI"
+  ],
+  "notes": "Same row split as processed_data_vote_fraction; demographics-only feature set.",
+  "ct_feature_columns": []
+}

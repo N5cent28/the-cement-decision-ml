@@ -1,0 +1,6 @@
+feature,importance,importance_std,abs_importance,method
+patient_age_years,0.3291005291005291,0.07985913243684589,0.3291005291005291,permutation_importance_test_auc
+height,-0.04797178130511462,0.02071541003178274,0.04797178130511462,permutation_importance_test_auc
+BMI,-0.019576719576719564,0.010350194533418842,0.019576719576719564,permutation_importance_test_auc
+sex_binary,-0.007936507936507912,0.018072223573120987,0.007936507936507912,permutation_importance_test_auc
+weight,0.0,0.01308565911925896,0.0,permutation_importance_test_auc

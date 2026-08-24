@@ -3,3 +3,5 @@ New_AI_Handoff_Guide.md
 Hafthor_Project_proposal.txt
 .DS_Store
 .venv/
+__pycache__/
+*.pyc

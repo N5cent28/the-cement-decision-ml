@@ -1,0 +1,41 @@
+Scenario 9 (Unanimous 3/3 agreement, CT+demographics) Results
+===============================================================
+
+Logistic Regression CV AUC: 0.9773 +/- 0.0199
+Random Forest CV AUC: 0.9183 +/- 0.0773
+Gradient Boosting CV AUC: 0.9507 +/- 0.0495
+SVM (RBF) CV AUC: 0.9180 +/- 0.0841
+
+Test metrics:
+
+Logistic Regression:
+  accuracy: 0.8421
+  precision: 0.8571
+  recall: 0.75
+  f1: 0.8
+  roc_auc: 0.9432
+  pr_auc: 0.9068
+
+Random Forest:
+  accuracy: 0.7895
+  precision: 1.0
+  recall: 0.5
+  f1: 0.6667
+  roc_auc: 0.8864
+  pr_auc: 0.8659
+
+Gradient Boosting:
+  accuracy: 0.6842
+  precision: 1.0
+  recall: 0.25
+  f1: 0.4
+  roc_auc: 0.7045
+  pr_auc: 0.7105
+
+SVM (RBF):
+  accuracy: 0.8421
+  precision: 0.8571
+  recall: 0.75
+  f1: 0.8
+  roc_auc: 0.9205
+  pr_auc: 0.8866
