@@ -21,10 +21,13 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import (
     accuracy_score,
     confusion_matrix,
+    f1_score,
     mean_absolute_error,
     mean_squared_error,
     precision_recall_curve,
+    precision_score,
     r2_score,
+    recall_score,
     roc_auc_score,
     roc_curve,
 )
@@ -131,6 +134,9 @@ def evaluate_on_test(models, X_train, y_train, X_test, y_test):
         # Secondary readout against binary majority-like boundary.
         acc = accuracy_score(y_test_bin, y_pred_bin)
         auc = roc_auc_score(y_test_bin, y_pred_cont)
+        prec = precision_score(y_test_bin, y_pred_bin, zero_division=0)
+        rec = recall_score(y_test_bin, y_pred_bin, zero_division=0)
+        f1 = f1_score(y_test_bin, y_pred_bin, zero_division=0)
 
         out[name] = {
             "metrics": {
@@ -138,6 +144,9 @@ def evaluate_on_test(models, X_train, y_train, X_test, y_test):
                 "mae": round(mae, 4),
                 "r2": round(r2, 4),
                 "binary_accuracy_at_0p5": round(acc, 4),
+                "binary_precision_at_0p5": round(prec, 4),
+                "binary_recall_at_0p5": round(rec, 4),
+                "binary_f1_at_0p5": round(f1, 4),
                 "binary_roc_auc_vs_thresholded_truth": round(auc, 4),
             },
             "y_pred_cont": y_pred_cont,

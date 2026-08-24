@@ -13,6 +13,9 @@ Test set metrics:
     mae: 0.304
     r2: -0.0757
     binary_accuracy_at_0p5: 0.5476
+    binary_precision_at_0p5: 0.5
+    binary_recall_at_0p5: 0.5263
+    binary_f1_at_0p5: 0.5128
     binary_roc_auc_vs_thresholded_truth: 0.4554
 
   Random Forest Regressor:
@@ -20,6 +23,9 @@ Test set metrics:
     mae: 0.2987
     r2: -0.1181
     binary_accuracy_at_0p5: 0.619
+    binary_precision_at_0p5: 0.5789
+    binary_recall_at_0p5: 0.5789
+    binary_f1_at_0p5: 0.5789
     binary_roc_auc_vs_thresholded_truth: 0.5469
 
   Gradient Boosting Regressor:
@@ -27,6 +33,9 @@ Test set metrics:
     mae: 0.2832
     r2: -0.0019
     binary_accuracy_at_0p5: 0.5476
+    binary_precision_at_0p5: 0.5
+    binary_recall_at_0p5: 0.5263
+    binary_f1_at_0p5: 0.5128
     binary_roc_auc_vs_thresholded_truth: 0.5927
 
   SVR (RBF):
@@ -34,4 +43,7 @@ Test set metrics:
     mae: 0.2994
     r2: -0.1844
     binary_accuracy_at_0p5: 0.5476
+    binary_precision_at_0p5: 0.5
+    binary_recall_at_0p5: 0.4737
+    binary_f1_at_0p5: 0.4865
     binary_roc_auc_vs_thresholded_truth: 0.5606

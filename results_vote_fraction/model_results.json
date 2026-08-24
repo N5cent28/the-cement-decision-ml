@@ -2,28 +2,28 @@
   "analysis_variant": "vote_fraction",
   "cross_validation": {
     "Linear Regression": {
-      "mean_rmse": 0.3604,
-      "std_rmse": 0.0677,
-      "mean_r2": -0.1565,
-      "std_r2": 0.2533
+      "mean_rmse": 0.3911,
+      "std_rmse": 0.1055,
+      "mean_r2": -0.4894,
+      "std_r2": 0.8537
     },
     "Random Forest Regressor": {
-      "mean_rmse": 0.322,
-      "std_rmse": 0.035,
-      "mean_r2": 0.0733,
-      "std_r2": 0.1181
+      "mean_rmse": 0.3259,
+      "std_rmse": 0.0213,
+      "mean_r2": -0.0072,
+      "std_r2": 0.3532
     },
     "Gradient Boosting Regressor": {
-      "mean_rmse": 0.3506,
-      "std_rmse": 0.0428,
-      "mean_r2": -0.1006,
-      "std_r2": 0.1697
+      "mean_rmse": 0.356,
+      "std_rmse": 0.0301,
+      "mean_r2": -0.2026,
+      "std_r2": 0.4348
     },
     "SVR (RBF)": {
-      "mean_rmse": 0.3356,
-      "std_rmse": 0.0394,
-      "mean_r2": -0.0056,
-      "std_r2": 0.1313
+      "mean_rmse": 0.3313,
+      "std_rmse": 0.0171,
+      "mean_r2": -0.0179,
+      "std_r2": 0.2626
     }
   },
   "test_set": {
@@ -32,27 +32,39 @@
       "mae": 0.2544,
       "r2": 0.106,
       "binary_accuracy_at_0p5": 0.619,
+      "binary_precision_at_0p5": 0.7143,
+      "binary_recall_at_0p5": 0.2632,
+      "binary_f1_at_0p5": 0.3846,
       "binary_roc_auc_vs_thresholded_truth": 0.643
     },
     "Random Forest Regressor": {
       "rmse": 0.3524,
       "mae": 0.3005,
-      "r2": -0.1026,
+      "r2": -0.1029,
       "binary_accuracy_at_0p5": 0.5238,
-      "binary_roc_auc_vs_thresholded_truth": 0.524
+      "binary_precision_at_0p5": 0.4444,
+      "binary_recall_at_0p5": 0.2105,
+      "binary_f1_at_0p5": 0.2857,
+      "binary_roc_auc_vs_thresholded_truth": 0.5195
     },
     "Gradient Boosting Regressor": {
-      "rmse": 0.3695,
-      "mae": 0.3166,
-      "r2": -0.2124,
+      "rmse": 0.3693,
+      "mae": 0.3167,
+      "r2": -0.2108,
       "binary_accuracy_at_0p5": 0.4524,
-      "binary_roc_auc_vs_thresholded_truth": 0.4828
+      "binary_precision_at_0p5": 0.3333,
+      "binary_recall_at_0p5": 0.2105,
+      "binary_f1_at_0p5": 0.2581,
+      "binary_roc_auc_vs_thresholded_truth": 0.4874
     },
     "SVR (RBF)": {
       "rmse": 0.3789,
       "mae": 0.3168,
       "r2": -0.2749,
       "binary_accuracy_at_0p5": 0.4762,
+      "binary_precision_at_0p5": 0.3333,
+      "binary_recall_at_0p5": 0.1579,
+      "binary_f1_at_0p5": 0.2143,
       "binary_roc_auc_vs_thresholded_truth": 0.4622
     }
   },
@@ -64,12 +76,12 @@
         "n_samples": 27
       },
       "Random Forest Regressor": {
-        "rmse": 0.3462,
+        "rmse": 0.3465,
         "binary_accuracy_at_0p5": 0.5185,
         "n_samples": 27
       },
       "Gradient Boosting Regressor": {
-        "rmse": 0.3594,
+        "rmse": 0.3591,
         "binary_accuracy_at_0p5": 0.4815,
         "n_samples": 27
       },
@@ -86,12 +98,12 @@
         "n_samples": 15
       },
       "Random Forest Regressor": {
-        "rmse": 0.3633,
+        "rmse": 0.3628,
         "binary_accuracy_at_0p5": 0.5333,
         "n_samples": 15
       },
       "Gradient Boosting Regressor": {
-        "rmse": 0.3871,
+        "rmse": 0.387,
         "binary_accuracy_at_0p5": 0.4,
         "n_samples": 15
       },
