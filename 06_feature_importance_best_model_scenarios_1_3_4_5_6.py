@@ -5,8 +5,13 @@ regression tasks and are out of scope for this script).
 
 Method:
   - Pick best model per scenario by highest test ROC-AUC.
-  - Tree models: native feature_importances_.
-  - Non-tree models: permutation importance on test set (ROC-AUC scoring).
+  - Compute test-set permutation importance (ROC-AUC scoring, n_repeats=30)
+    for that model, regardless of model type. Earlier revisions used native
+    feature_importances_ for tree-based models (Random Forest, Gradient
+    Boosting), but that method is not comparable in scale to permutation
+    importance and is biased toward high-cardinality/correlated features;
+    all scenarios now use the same method so rankings are comparable
+    scenario-to-scenario.
 
 Note: scenarios 1, 3, and 4 previously pointed at stale results directories
 (results_majority/, results_majority_CT+Demographics/,
@@ -127,18 +132,20 @@ def load_split(processed_dir, feature_cols, target_col):
 
 
 def compute_importance(model_name, model, X_train, y_train, X_test, y_test, feature_cols):
+    # Always use test-set permutation importance, regardless of model type.
+    # Native tree importance (feature_importances_) was used previously for
+    # Random Forest / Gradient Boosting, but it is not comparable in scale to
+    # permutation importance and is biased toward high-cardinality/correlated
+    # features. Using one method for every scenario keeps the "best model"
+    # feature-importance rankings comparable across scenarios regardless of
+    # which of the 4 candidate algorithms happened to win.
     model.fit(X_train, y_train)
-    if model_name in {"Random Forest", "Gradient Boosting"}:
-        imp = model.feature_importances_
-        std = np.zeros_like(imp)
-        method = "native_tree_importance"
-    else:
-        perm = permutation_importance(
-            model, X_test, y_test, scoring="roc_auc", n_repeats=30, random_state=42, n_jobs=-1
-        )
-        imp = perm.importances_mean
-        std = perm.importances_std
-        method = "permutation_importance_test_auc"
+    perm = permutation_importance(
+        model, X_test, y_test, scoring="roc_auc", n_repeats=30, random_state=42, n_jobs=-1
+    )
+    imp = perm.importances_mean
+    std = perm.importances_std
+    method = "permutation_importance_test_auc"
 
     df = pd.DataFrame(
         {
