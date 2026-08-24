@@ -12,6 +12,21 @@ this pattern: pick the next unused letter, and if you're adding new feature
 sets for an existing ground truth, always derive from that ground truth's
 existing base split rather than re-deriving your own.
 
+**All cleaning, ground-truth, split, imputation, and feature-engineering
+logic lives in `common_preprocessing.py`.** Every `03*_preprocessing*.py`
+and `03*_build_*_same_split.py` script (and `07_repeated_grouped_split_eval.py`)
+imports it rather than reimplementing it — this used to be 13+ independent
+copies of the same ~150 lines, which is how the `gt_h3d_agree` (2-of-3, not
+3-of-3) mislabeling in an earlier revision went unnoticed for a while. If
+you need to change an exclusion threshold, add a ground truth, or fix a
+cleaning rule, change it in `common_preprocessing.py` once — every scenario
+picks it up automatically next time its script runs. See that file's module
+docstring for the full rationale and every `gt_*` definition. A scenario
+script should now only ever need to specify: which `target_col`, which
+`use_ct`/`use_demo` combination, and which output directory — if you find
+yourself copy-pasting cleaning or splitting logic into a new scenario
+script, that logic belongs in `common_preprocessing.py` instead.
+
 ## Ground truths
 
 | Column | Definition | Built by |
@@ -53,10 +68,10 @@ reads as one isolated feature-set comparison.
 - `06_feature_importance_best_model_scenarios_1_3_4_5_6.py` — best-model feature importance for all classification scenarios (currently 1, 3, 4, 5, 6, 7, 8, 9, 10, 11). Vote-fraction scenarios (2, 12, 13) are regression tasks and out of scope.
 - `07_repeated_grouped_split_eval.py` — repeated patient-grouped split robustness check with 95% confidence intervals, covering **all 13 scenarios** (30 repeats each). Output: `results_repeated_splits_all_scenarios/`. This supersedes the older `results_repeated_splits_scenarios_1_3_4_5_6/` (10 repeats, scenarios 1/3/4/5/6 only), which is kept only as a historical artifact — treat the new directory as authoritative.
 - `08_build_all_models_metrics_table.py` — the single master table: every model's accuracy/precision/recall/F1/ROC-AUC/PR-AUC (or RMSE/MAE/R2 for vote-fraction) across all 13 scenarios, joined with the 95% CI from `07`'s repeated-split output. Output: `reports/all_models_metrics_table.csv` / `.md`. Rerun `07` before `08` if you've changed any scenario's data or models, so the CI columns stay in sync.
+- `common_preprocessing.py` — shared cleaning/ground-truth/split/imputation/feature-engineering library used by every `03*` script and `07`. Not a pipeline step itself; see its module docstring for the full rationale.
 
 ## Recommended follow-ups (not yet done)
 
 1. Extend `05_compare_all_experiments.py`'s comparison chart to include all 13 scenarios, or add a parallel chart grouped by ground truth instead of by feature set.
-2. Before adding a 14th scenario, update this file's matrix table and confirm which existing "base" split it should reuse — don't create a new independent split unless the ground truth itself is new. Also add it to `07_repeated_grouped_split_eval.py`'s `SCENARIOS` list so it gets a CI immediately rather than only a single-split point estimate.
+2. Before adding a 14th scenario, update this file's matrix table and confirm which existing "base" split it should reuse — don't create a new independent split unless the ground truth itself is new. Add the new scenario to `common_preprocessing.py` only if it needs a genuinely new `gt_*` column; otherwise just add a new `03*` script that calls the existing shared functions with a different `target_col`/`use_ct`/`use_demo` combination. Also add it to `07_repeated_grouped_split_eval.py`'s `SCENARIOS` list so it gets a CI immediately rather than only a single-split point estimate.
 3. Consider deleting `results_repeated_splits_scenarios_1_3_4_5_6/` now that `results_repeated_splits_all_scenarios/` fully supersedes it (same scenarios plus 7 more, 30 repeats instead of 10) — kept for now since removing it is a destructive action outside this pass's scope.
-4. The 13 near-duplicated `load_and_clean`-style functions across the `03*` scripts (and now also inside `07`) are a standing maintenance risk — a future data-cleaning fix has to be found and applied in every copy. Worth consolidating into one shared module (e.g. `common_preprocessing.py`) in a dedicated pass.

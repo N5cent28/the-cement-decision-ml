@@ -1,140 +1,29 @@
 """
-Step 3C: Build Demographics-Augmented Dataset (Same Original Split)
-===================================================================
+Step 3C / Scenario 3: Build Demographics-Augmented Dataset (Same Original Split)
+===================================================================================
 Uses the exact existing split from `processed_data/train.csv` and
-`processed_data/test.csv`, then appends demographic variables for a
-comparison analysis.
+`processed_data/test.csv` (scenario 1's split) and appends demographic
+variables, so scenarios 1, 3, and 4 differ by exactly one variable (feature
+set) with an identical ground truth and split.
 
-Demographics added for ML training:
-  - patient_age (parsed numeric years)
-  - sex (binary encoding: F=0, M=1)
-  - weight
-  - height
-  - BMI
+Demographics added: patient_age (parsed numeric years), sex (binary), weight,
+height, BMI. See `common_preprocessing.py` for the shared cleaning/imputation
+logic this script builds on.
 
-Outputs are written to a separate folder:
-  processed_data_demographics_same_split/
+Outputs are written to a separate folder: processed_data_demographics_same_split/
 
 Run: python 03c_build_split_with_demographics.py
 """
 
 import json
 import os
-import re
 
-import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 
-RAW_FILE = "Raw_data_03.03.2026.csv"
+import common_preprocessing as cp
+
 BASE_SPLIT_DIR = "processed_data"
 OUTPUT_DIR = "processed_data_demographics_same_split"
-
-SURGEON_COLS = [
-    "Cement_vs_noCement_original",
-    "Halldor_decision",
-    "3d_surg",
-]
-
-LABEL_MAP = {
-    "Cemented": 1,
-    "cemented": 1,
-    "Non-cemented": 0,
-    "non-cemented": 0,
-    "Uncemented": 0,
-    "uncemented": 0,
-}
-
-EXCLUDED_LABELS = {"Already operated", "already operated"}
-BMD_ANOMALY_THRESHOLD = 0.5
-CORTICAL_AREA_MIN = 50.0
-CORTICAL_THICKNESS_MIN = 2.0
-
-CT_BASE_FEATURES = [
-    "zone_1_bmd",
-    "zone_2_bmd",
-    "zone_3_bmd",
-    "zone_4_bmd",
-    "zone_5_bmd",
-    "zone_6_bmd",
-    "zone_7_bmd",
-    "cortical_area_mm2",
-    "cortical_thickness_mm",
-    "avg_outer_radius_mm",
-    "ray_inner_radius_mm",
-    "geometric_inner_R_mm",
-    "inner_radius_std_mm",
-]
-
-DEMO_FEATURES = [
-    "patient_age_years",
-    "sex_binary",
-    "weight",
-    "height",
-    "BMI",
-]
-
-
-def parse_age_to_years(age_val):
-    """Parse age strings like '064Y', '60Y', '57Y' into numeric years."""
-    if pd.isna(age_val):
-        return np.nan
-    text = str(age_val).strip()
-    m = re.search(r"(\d+)", text)
-    return float(m.group(1)) if m else np.nan
-
-
-def load_and_clean_raw():
-    """
-    Rebuild the same cleaned cohort used by original preprocessing
-    so keys align with processed_data split files.
-    """
-    df = pd.read_csv(RAW_FILE)
-    for col in SURGEON_COLS:
-        df[col] = df[col].astype(str).str.strip()
-
-    # Exclude unavailable labels
-    excluded_mask = pd.Series(False, index=df.index)
-    for col in SURGEON_COLS:
-        excluded_mask |= df[col].isin(EXCLUDED_LABELS)
-    df = df[~excluded_mask].copy()
-
-    # Map labels to binary
-    for col in SURGEON_COLS:
-        df[col + "_bin"] = df[col].map(LABEL_MAP)
-
-    # Exclude unusable scans
-    df = df[df["notes"] != "Unusable with same HU range"].copy()
-
-    # Exclude clear CT anomalies (same logic as original preprocessing)
-    anomaly_mask = pd.Series(False, index=df.index)
-    bmd_cols = [c for c in CT_BASE_FEATURES if "bmd" in c]
-    for col in bmd_cols:
-        anomaly_mask |= df[col].notna() & (df[col] < BMD_ANOMALY_THRESHOLD)
-    anomaly_mask |= df["cortical_area_mm2"].notna() & (df["cortical_area_mm2"] < CORTICAL_AREA_MIN)
-    anomaly_mask |= df["cortical_thickness_mm"].notna() & (
-        df["cortical_thickness_mm"] < CORTICAL_THICKNESS_MIN
-    )
-    df = df[~anomaly_mask].copy()
-
-    # Ground truth columns
-    bin_cols = [c + "_bin" for c in SURGEON_COLS]
-    valid_all = df[bin_cols].notna().all(axis=1)
-    cemented_votes = df.loc[valid_all, bin_cols].sum(axis=1)
-
-    df["gt_original"] = df["Cement_vs_noCement_original_bin"]
-    df["gt_majority"] = np.nan
-    df.loc[valid_all, "gt_majority"] = (cemented_votes >= 2).astype(int)
-    df["gt_vote_fraction"] = np.nan
-    df.loc[valid_all, "gt_vote_fraction"] = cemented_votes / 3.0
-
-    # Demographic transforms
-    df["patient_age_years"] = df["patient_age"].apply(parse_age_to_years)
-    df["sex_binary"] = df["sex"].map({"F": 0.0, "M": 1.0})
-
-    # Key for robust merge with split files
-    df["split_key"] = df["Anonymize_ID"].astype(str) + "|" + df["hip_side"].astype(str)
-    return df
 
 
 def load_base_split():
@@ -142,58 +31,27 @@ def load_base_split():
     test = pd.read_csv(os.path.join(BASE_SPLIT_DIR, "test.csv"))
     with open(os.path.join(BASE_SPLIT_DIR, "preprocessing_metadata.json")) as f:
         meta = json.load(f)
-
-    train["split_key"] = train["Anonymize_ID"].astype(str) + "|" + train["hip_side"].astype(str)
-    test["split_key"] = test["Anonymize_ID"].astype(str) + "|" + test["hip_side"].astype(str)
     return train, test, meta
 
 
-def attach_demographics(base_df, raw_df):
-    keep_cols = ["split_key", "patient_age", "patient_age_years", "sex", "sex_binary", "weight", "height", "BMI"]
-    merged = base_df.merge(raw_df[keep_cols], on="split_key", how="left", validate="one_to_one")
-    missing_demo = merged[DEMO_FEATURES].isna().all(axis=1).sum()
-    if missing_demo > 0:
-        raise ValueError(f"Merge failed for {missing_demo} rows: no demographics found by split_key.")
-    return merged
-
-
-def preprocess_demographics(train_df, test_df):
-    # Train-only imputation values
-    medians = train_df[["patient_age_years", "weight", "height", "BMI"]].median()
-    sex_mode = train_df["sex_binary"].mode(dropna=True)
-    sex_fill = sex_mode.iloc[0] if len(sex_mode) > 0 else 0.0
-
-    for col in ["patient_age_years", "weight", "height", "BMI"]:
-        train_df[col] = train_df[col].fillna(medians[col])
-        test_df[col] = test_df[col].fillna(medians[col])
-    train_df["sex_binary"] = train_df["sex_binary"].fillna(sex_fill)
-    test_df["sex_binary"] = test_df["sex_binary"].fillna(sex_fill)
-
-    # Scale demographics using train fit only
-    scaler = StandardScaler()
-    train_df[DEMO_FEATURES] = scaler.fit_transform(train_df[DEMO_FEATURES])
-    test_df[DEMO_FEATURES] = scaler.transform(test_df[DEMO_FEATURES])
-    return train_df, test_df
-
-
 def main():
-    print("=" * 72)
-    print("STEP 3C: BUILD DEMOGRAPHICS-AUGMENTED DATASET (SAME ORIGINAL SPLIT)")
-    print("=" * 72 + "\n")
-
-    raw_clean = load_and_clean_raw()
+    raw_clean = cp.load_and_clean_raw()
     train_base, test_base, base_meta = load_base_split()
 
-    # Verify no split drift
-    base_keys = set(train_base["split_key"]).union(set(test_base["split_key"]))
+    base_keys = set(train_base["Anonymize_ID"].astype(str) + "|" + train_base["hip_side"].astype(str)).union(
+        set(test_base["Anonymize_ID"].astype(str) + "|" + test_base["hip_side"].astype(str))
+    )
     raw_keys = set(raw_clean["split_key"])
     if not base_keys.issubset(raw_keys):
         missing = list(base_keys - raw_keys)[:5]
         raise ValueError(f"Base split keys not found in cleaned raw data. Example missing keys: {missing}")
 
-    train_aug = attach_demographics(train_base, raw_clean)
-    test_aug = attach_demographics(test_base, raw_clean)
-    train_aug, test_aug = preprocess_demographics(train_aug, test_aug)
+    # Keep the raw patient_age/sex strings alongside the numeric transforms,
+    # for provenance/inspection, matching the original script's output schema.
+    demo_cols_with_raw = ["patient_age", "patient_age_years", "sex", "sex_binary", "weight", "height", "BMI"]
+    train_aug = cp.attach_demographics_by_split_key(train_base, raw_clean, demo_cols_with_raw)
+    test_aug = cp.attach_demographics_by_split_key(test_base, raw_clean, demo_cols_with_raw)
+    train_aug, test_aug = cp.impute_and_scale_demographics(train_aug, test_aug, cp.DEMO_FEATURES)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     train_out = os.path.join(OUTPUT_DIR, "train.csv")
@@ -201,13 +59,13 @@ def main():
     train_aug.to_csv(train_out, index=False)
     test_aug.to_csv(test_out, index=False)
 
-    feature_cols_aug = base_meta["feature_columns"] + DEMO_FEATURES
+    feature_cols_aug = base_meta["feature_columns"] + cp.DEMO_FEATURES
     meta_out = {
         **base_meta,
         "analysis_variant": "majority_with_demographics_same_split",
         "base_split_source": BASE_SPLIT_DIR,
         "feature_columns": feature_cols_aug,
-        "demographic_feature_columns": DEMO_FEATURES,
+        "demographic_feature_columns": cp.DEMO_FEATURES,
         "notes": "Uses identical train/test rows as processed_data; adds train-only-imputed/scaled demographics.",
     }
     meta_path = os.path.join(OUTPUT_DIR, "preprocessing_metadata.json")

@@ -16,6 +16,11 @@ scenarios (2, 12, 13) report RMSE/MAE/R2 plus the same
 precision/recall/F1/accuracy/ROC-AUC computed at a 0.5 vote-fraction
 threshold, matching the convention used in 04b/04l/04m.
 
+Cleaning, ground-truth definitions, split logic, imputation, and feature
+engineering all come from `common_preprocessing.py` — this script only adds
+the "repeat N times and summarize the distribution" layer on top, and owns
+the SCENARIOS list (which ground truth + feature set each scenario uses).
+
 Run examples:
   python 07_repeated_grouped_split_eval.py
   python 07_repeated_grouped_split_eval.py --repeats 50 --test-size 0.2
@@ -24,7 +29,6 @@ Run examples:
 import argparse
 import json
 import os
-import re
 from dataclasses import dataclass
 
 import matplotlib
@@ -38,7 +42,6 @@ from sklearn.ensemble import (
     RandomForestClassifier,
     RandomForestRegressor,
 )
-from sklearn.impute import KNNImputer
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.metrics import (
     accuracy_score,
@@ -51,48 +54,14 @@ from sklearn.metrics import (
     recall_score,
     roc_auc_score,
 )
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC, SVR
+
+import common_preprocessing as cp
 
 matplotlib.use("Agg")
 
-DATA_FILE = "Raw_data_03.03.2026.csv"
 OUT_DIR = "results_repeated_splits_all_scenarios"
 FIG_DIR = os.path.join(OUT_DIR, "figures")
-
-SURGEON_COLS = ["Cement_vs_noCement_original", "Halldor_decision", "3d_surg"]
-LABEL_MAP = {
-    "Cemented": 1,
-    "cemented": 1,
-    "Non-cemented": 0,
-    "non-cemented": 0,
-    "Uncemented": 0,
-    "uncemented": 0,
-}
-EXCLUDED_LABELS = {"Already operated", "already operated"}
-
-CT_BASE_FEATURES = [
-    "zone_1_bmd",
-    "zone_2_bmd",
-    "zone_3_bmd",
-    "zone_4_bmd",
-    "zone_5_bmd",
-    "zone_6_bmd",
-    "zone_7_bmd",
-    "cortical_area_mm2",
-    "cortical_thickness_mm",
-    "avg_outer_radius_mm",
-    "ray_inner_radius_mm",
-    "geometric_inner_R_mm",
-    "inner_radius_std_mm",
-]
-
-DEMO_FEATURES = ["patient_age_years", "sex_binary", "weight", "height", "BMI"]
-
-BMD_ANOMALY_THRESHOLD = 0.5
-CORTICAL_AREA_MIN = 50.0
-CORTICAL_THICKNESS_MIN = 2.0
 BINARY_THRESHOLD = 0.5
 
 
@@ -123,94 +92,6 @@ SCENARIOS = [
 ]
 
 
-def parse_age_to_years(age_val):
-    if pd.isna(age_val):
-        return np.nan
-    m = re.search(r"(\d+)", str(age_val))
-    return float(m.group(1)) if m else np.nan
-
-
-def load_clean_base():
-    df = pd.read_csv(DATA_FILE)
-    for col in SURGEON_COLS:
-        df[col] = df[col].astype(str).str.strip()
-
-    excluded = pd.Series(False, index=df.index)
-    for col in SURGEON_COLS:
-        excluded |= df[col].isin(EXCLUDED_LABELS)
-    df = df[~excluded].copy()
-
-    for col in SURGEON_COLS:
-        df[col + "_bin"] = df[col].map(LABEL_MAP)
-
-    df = df[df["notes"] != "Unusable with same HU range"].copy()
-
-    bad = pd.Series(False, index=df.index)
-    for col in [c for c in CT_BASE_FEATURES if "bmd" in c]:
-        bad |= df[col].notna() & (df[col] < BMD_ANOMALY_THRESHOLD)
-    bad |= df["cortical_area_mm2"].notna() & (df["cortical_area_mm2"] < CORTICAL_AREA_MIN)
-    bad |= df["cortical_thickness_mm"].notna() & (df["cortical_thickness_mm"] < CORTICAL_THICKNESS_MIN)
-    df = df[~bad].copy()
-
-    # Targets.
-    bin_cols = [c + "_bin" for c in SURGEON_COLS]
-    valid_all = df[bin_cols].notna().all(axis=1)
-    cemented_votes = df.loc[valid_all, bin_cols].sum(axis=1)
-
-    df["gt_original"] = df["Cement_vs_noCement_original_bin"].astype(int)
-
-    df["gt_majority"] = np.nan
-    df.loc[valid_all, "gt_majority"] = (cemented_votes >= 2).astype(int)
-
-    df["gt_vote_fraction"] = np.nan
-    df.loc[valid_all, "gt_vote_fraction"] = cemented_votes / 3.0
-
-    df["gt_unanimous"] = np.nan
-    unanimous_mask = valid_all & cemented_votes.reindex(df.index).isin([0, 3])
-    df.loc[unanimous_mask, "gt_unanimous"] = (cemented_votes.reindex(df.index) == 3).astype(int)
-
-    h3d_agree = (
-        df["Halldor_decision_bin"].notna()
-        & df["3d_surg_bin"].notna()
-        & (df["Halldor_decision_bin"] == df["3d_surg_bin"])
-    )
-    df["gt_h3d_agree"] = np.nan
-    df.loc[h3d_agree, "gt_h3d_agree"] = df.loc[h3d_agree, "Halldor_decision_bin"].astype(int)
-
-    # Demographics.
-    df["patient_age_years"] = df["patient_age"].apply(parse_age_to_years)
-    df["sex_binary"] = df["sex"].map({"F": 0.0, "M": 1.0})
-    return df
-
-
-def add_ct_engineered(df):
-    out = df.copy()
-    out["zones_1_7_avg"] = out[["zone_1_bmd", "zone_7_bmd"]].mean(axis=1)
-    out["zones_2_6_avg"] = out[["zone_2_bmd", "zone_6_bmd"]].mean(axis=1)
-    for avg in ["zones_1_7_avg", "zones_2_6_avg"]:
-        for geom in ["cortical_thickness_mm", "cortical_area_mm2"]:
-            out[f"{avg}_to_{geom}"] = out[avg] / out[geom].replace(0, np.nan)
-    bmd_cols = [f"zone_{i}_bmd" for i in range(1, 8)]
-    out["bmd_mean"] = out[bmd_cols].mean(axis=1)
-    out["bmd_std"] = out[bmd_cols].std(axis=1)
-    out["bmd_range"] = out[bmd_cols].max(axis=1) - out[bmd_cols].min(axis=1)
-    return out
-
-
-def ct_feature_list():
-    return CT_BASE_FEATURES + [
-        "zones_1_7_avg",
-        "zones_2_6_avg",
-        "zones_1_7_avg_to_cortical_thickness_mm",
-        "zones_1_7_avg_to_cortical_area_mm2",
-        "zones_2_6_avg_to_cortical_thickness_mm",
-        "zones_2_6_avg_to_cortical_area_mm2",
-        "bmd_mean",
-        "bmd_std",
-        "bmd_range",
-    ]
-
-
 def build_classifiers():
     return {
         "Logistic Regression": LogisticRegression(max_iter=2000, solver="lbfgs", random_state=42),
@@ -237,78 +118,32 @@ def build_regressors():
     }
 
 
-def stratified_group_split(df, target_col, test_size, seed, is_regression):
-    patient_info = (
-        df.groupby("Anonymize_ID")
-        .agg({target_col: "first", "Cohort_group": "first"})
-        .reset_index()
-    )
-    if is_regression:
-        patient_info["strat_key_col"] = patient_info[target_col].round(2).astype(str)
-    else:
-        patient_info["strat_key_col"] = patient_info[target_col].astype(int).astype(str)
-    patient_info["strat_tc"] = patient_info["strat_key_col"] + "_" + patient_info["Cohort_group"]
-
-    split_strategy = "target_plus_cohort"
-    try:
-        tr, te = train_test_split(
-            patient_info, test_size=test_size, random_state=seed, stratify=patient_info["strat_tc"]
-        )
-    except ValueError:
-        split_strategy = "target_only_fallback"
-        try:
-            tr, te = train_test_split(
-                patient_info, test_size=test_size, random_state=seed, stratify=patient_info["strat_key_col"]
-            )
-        except ValueError:
-            split_strategy = "unstratified_fallback"
-            tr, te = train_test_split(patient_info, test_size=test_size, random_state=seed)
-
-    tr_ids = set(tr["Anonymize_ID"])
-    te_ids = set(te["Anonymize_ID"])
-    train = df[df["Anonymize_ID"].isin(tr_ids)].copy()
-    test = df[df["Anonymize_ID"].isin(te_ids)].copy()
-    return train, test, split_strategy
-
-
 def preprocess_for_split(train, test, scenario):
+    """Engineer/impute/scale the feature set this scenario needs. Delegates
+    every actual operation to common_preprocessing; only decides which
+    operations apply (CT, demographics, or both)."""
     feature_cols = []
 
     if scenario.use_ct:
-        for cohort in sorted(train["Cohort_group"].unique()):
-            tr_mask = train["Cohort_group"] == cohort
-            te_mask = test["Cohort_group"] == cohort
-            imputer = KNNImputer(n_neighbors=5, weights="distance")
-            train.loc[tr_mask, CT_BASE_FEATURES] = imputer.fit_transform(train.loc[tr_mask, CT_BASE_FEATURES])
-            if te_mask.any():
-                test.loc[te_mask, CT_BASE_FEATURES] = imputer.transform(test.loc[te_mask, CT_BASE_FEATURES])
-
-        train = add_ct_engineered(train)
-        test = add_ct_engineered(test)
-        feature_cols.extend(ct_feature_list())
+        train, test = cp.cohort_knn_impute(train, test, cp.CT_FEATURE_COLS)
+        train = cp.engineer_ct_features(train)
+        test = cp.engineer_ct_features(test)
+        ct_cols = cp.ct_feature_list()
+        train, test, _ = cp.scale_features(train, test, ct_cols)
+        feature_cols.extend(ct_cols)
 
     if scenario.use_demo:
-        medians = train[["patient_age_years", "weight", "height", "BMI"]].median()
-        sex_mode = train["sex_binary"].mode(dropna=True)
-        sex_fill = sex_mode.iloc[0] if len(sex_mode) else 0.0
-        for c in ["patient_age_years", "weight", "height", "BMI"]:
-            train[c] = train[c].fillna(medians[c])
-            test[c] = test[c].fillna(medians[c])
-        train["sex_binary"] = train["sex_binary"].fillna(sex_fill)
-        test["sex_binary"] = test["sex_binary"].fillna(sex_fill)
-        feature_cols.extend(DEMO_FEATURES)
+        train, test = cp.impute_and_scale_demographics(train, test, cp.DEMO_FEATURES)
+        feature_cols.extend(cp.DEMO_FEATURES)
 
-    scaler = StandardScaler()
-    train[feature_cols] = scaler.fit_transform(train[feature_cols])
-    test[feature_cols] = scaler.transform(test[feature_cols])
     return train, test, feature_cols
 
 
 def run_single_repeat(df_base, scenario, seed, test_size):
     df = df_base[df_base[scenario.target_col].notna()].copy()
 
-    train, test, split_strategy = stratified_group_split(
-        df, scenario.target_col, test_size=test_size, seed=seed, is_regression=scenario.is_regression
+    train, test, split_strategy = cp.grouped_split(
+        df, scenario.target_col, test_size=test_size, random_state=seed, is_regression=scenario.is_regression
     )
     train, test, features = preprocess_for_split(train, test, scenario)
 
@@ -435,7 +270,7 @@ def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     os.makedirs(FIG_DIR, exist_ok=True)
 
-    df_base = load_clean_base()
+    df_base = cp.load_and_clean_raw()
     all_rows = []
     for scenario in SCENARIOS:
         for i in range(args.repeats):

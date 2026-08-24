@@ -159,7 +159,8 @@ For tree-based models (Random Forest, Gradient Boosting), feature importance sco
 - **Language:** Python 3.x
 - **Key libraries:** pandas, numpy, scikit-learn, scipy, statsmodels, matplotlib, seaborn
 - **Random seed:** 42 (used consistently across all stochastic operations)
-- All pipeline steps are implemented as sequential scripts (`01_data_audit.py` through `04_train_evaluate.py`) that produce intermediate outputs to enable inspection at each stage.
+- All pipeline steps are implemented as sequential scripts (`01_data_audit.py` through `08_build_all_models_metrics_table.py`) that produce intermediate outputs to enable inspection at each stage.
+- All cleaning rules, ground-truth definitions, patient-grouped split logic, imputation, and CT feature engineering are implemented once, in `common_preprocessing.py`, and imported by every `03*_preprocessing*.py` / `03*_build_*_same_split.py` script and by `07_repeated_grouped_split_eval.py`. See that file's module docstring for the full rationale and every `gt_*` ground-truth definition in one place.
 
 ## 9. Sensitivity Analyses: Status
 
@@ -187,6 +188,7 @@ For tree-based models (Random Forest, Gradient Boosting), feature importance sco
 | 2026-03-05 | Added scenarios 5–6, split-stratification logging, and repeated-split robustness analysis. |
 | 2026-08-23 | Added scenarios 7–13 to complete the 3×3 ground-truth × feature-set sensitivity matrix (unanimous agreement, original-surgeon-only, and vote-fraction targets each now tested against CT-only, demographics-only, and CT+demographics). Corrected scenario 5/6 prose figures to match committed result files, fixed a stale image reference, repointed the feature-importance script at current (non-stale) result directories, and removed orphaned pre-split-fix result directories (`results_majority/`, `results_majority_CT+Demographics/`, `results_majority_demographics_only/`). See `SCENARIO_INDEX.md`. |
 | 2026-08-23 | Added precision/recall/F1 to the vote-fraction scenarios (2, 12, 13), which previously reported only regression metrics. Added a consolidated all-scenarios metrics table (`08_build_all_models_metrics_table.py`, `reports/all_models_metrics_table.md`). Extended the repeated-split robustness check to all 13 scenarios with 30 repeats and 95% confidence intervals (`07_repeated_grouped_split_eval.py` → `results_repeated_splits_all_scenarios/`), joined into the master metrics table. Corrected a stale claim that demographics were excluded from all models, and marked the "cohort-specific models" and "questionable-quality-scan exclusion" sensitivity analyses explicitly as not done. |
+| 2026-08-23 | Consolidated the 13+ near-duplicated data-cleaning/ground-truth/split/imputation implementations across the `03*` scripts and `07` into one shared module, `common_preprocessing.py`. Verified byte-for-byte (train.csv/metadata) and value-for-value (repeated-split summary, max abs diff 0.0) that every refactored script produces identical output to its pre-refactor version before committing — this was a pure code-organization change with zero effect on any reported number. |
 
 ---
 
