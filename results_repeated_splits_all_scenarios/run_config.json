@@ -1,0 +1,20 @@
+{
+  "repeats": 30,
+  "test_size": 0.2,
+  "seed_start": 100,
+  "scenarios": [
+    "scenario1_majority_ct_only",
+    "scenario3_majority_ct_plus_demo",
+    "scenario4_majority_demo_only",
+    "scenario2_vote_fraction_ct_only",
+    "scenario13_vote_fraction_ct_plus_demo",
+    "scenario12_vote_fraction_demo_only",
+    "scenario5_h3d_agree_ct_only",
+    "scenario7_unanimous_ct_only",
+    "scenario9_unanimous_ct_plus_demo",
+    "scenario8_unanimous_demo_only",
+    "scenario10_original_ct_only",
+    "scenario6_original_ct_plus_demo",
+    "scenario11_original_demo_only"
+  ]
+}

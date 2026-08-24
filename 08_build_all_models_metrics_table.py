@@ -12,7 +12,15 @@ at the 0.5 vote-fraction threshold (see the `binary_*` fields written by
 04b/04l/04m) alongside their native regression metrics (RMSE, MAE, R2),
 which have no classification equivalent and are left blank in those columns.
 
+Every row also carries a 95% confidence interval on ROC-AUC (and, for
+regression scenarios, RMSE), pulled from the repeated patient-grouped-split
+distribution computed by 07_repeated_grouped_split_eval.py (30 resplits per
+scenario) rather than the single train/test split used for the point
+estimate. Single-split point estimates on test sets this small (19-43 hips)
+are noisy; the CI columns show how much that noise actually is.
+
 Run:
+  python 07_repeated_grouped_split_eval.py   # regenerates the CI source data
   python 08_build_all_models_metrics_table.py
 """
 
@@ -22,6 +30,7 @@ import os
 import pandas as pd
 
 REPORT_DIR = "reports"
+CI_SUMMARY_PATH = "results_repeated_splits_all_scenarios/repeated_split_metrics_summary.csv"
 
 # (scenario_number, ground_truth, feature_set, results_dir, is_regression)
 SCENARIOS = [
@@ -95,12 +104,66 @@ def load_scenario_rows(scenario_num, ground_truth, feature_set, results_dir, is_
     return rows
 
 
+def load_ci_summary():
+    """Load the repeated-split 95% CI summary, keyed by (scenario_number, model)."""
+    if not os.path.exists(CI_SUMMARY_PATH):
+        return None
+    ci = pd.read_csv(CI_SUMMARY_PATH)
+    return ci.set_index(["scenario_number", "model"])
+
+
+def attach_ci(df, ci_df):
+    if ci_df is None:
+        df["roc_auc_95ci_lower"] = None
+        df["roc_auc_95ci_upper"] = None
+        df["rmse_95ci_lower"] = None
+        df["rmse_95ci_upper"] = None
+        df["ci_repeats"] = None
+        return df
+
+    lowers, uppers, rmse_lowers, rmse_uppers, repeats = [], [], [], [], []
+    for _, r in df.iterrows():
+        key = (r["scenario"], r["model"])
+        if key in ci_df.index:
+            row = ci_df.loc[key]
+            lowers.append(round(row["roc_auc_ci95_lower"], 4))
+            uppers.append(round(row["roc_auc_ci95_upper"], 4))
+            repeats.append(int(row["repeats"]))
+            if r["task_type"] == "regression":
+                rmse_lowers.append(round(row["rmse_ci95_lower"], 4))
+                rmse_uppers.append(round(row["rmse_ci95_upper"], 4))
+            else:
+                rmse_lowers.append(None)
+                rmse_uppers.append(None)
+        else:
+            lowers.append(None)
+            uppers.append(None)
+            rmse_lowers.append(None)
+            rmse_uppers.append(None)
+            repeats.append(None)
+
+    df["roc_auc_95ci_lower"] = lowers
+    df["roc_auc_95ci_upper"] = uppers
+    df["rmse_95ci_lower"] = rmse_lowers
+    df["rmse_95ci_upper"] = rmse_uppers
+    df["ci_repeats"] = repeats
+    return df
+
+
 def save_markdown_table(df, path, title):
     cols = [
         "scenario", "ground_truth", "feature_set", "model", "n_train", "n_test",
         "accuracy", "precision", "recall", "f1", "roc_auc",
+        "roc_auc_95ci_lower", "roc_auc_95ci_upper", "ci_repeats",
     ]
     lines = [f"# {title}", ""]
+    lines.append(
+        "95% CIs are computed from 30 repeated patient-grouped train/test "
+        "splits (see `results_repeated_splits_all_scenarios/`), not from the "
+        "single split used for the point-estimate columns. A blank CI means "
+        "the repeated-split run hasn't been regenerated for that scenario/model."
+    )
+    lines.append("")
     lines.append("| " + " | ".join(cols) + " |")
     lines.append("|" + "---|" * len(cols))
     for _, r in df.iterrows():
@@ -125,6 +188,8 @@ def main():
         )
 
     df = pd.DataFrame(all_rows).sort_values(["scenario", "model"]).reset_index(drop=True)
+    ci_df = load_ci_summary()
+    df = attach_ci(df, ci_df)
 
     csv_path = os.path.join(REPORT_DIR, "all_models_metrics_table.csv")
     df.to_csv(csv_path, index=False)

@@ -1,53 +1,53 @@
-scenario,ground_truth,feature_set,model,task_type,n_train,n_test,accuracy,precision,recall,f1,roc_auc,pr_auc,rmse,mae,r2,note
-1,Majority vote,CT-only,Gradient Boosting,classification,157,43,0.6279,0.5882,0.5263,0.5556,0.7171,0.6117,,,,
-1,Majority vote,CT-only,Logistic Regression,classification,157,43,0.6512,0.5909,0.6842,0.6341,0.6469,0.5766,,,,
-1,Majority vote,CT-only,Random Forest,classification,157,43,0.6047,0.5714,0.4211,0.4848,0.7368,0.6309,,,,
-1,Majority vote,CT-only,SVM (RBF),classification,157,43,0.6977,0.6875,0.5789,0.6286,0.6996,0.6071,,,,
-2,Vote fraction,CT-only,Gradient Boosting Regressor,regression,158,42,0.4524,0.3333,0.2105,0.2581,0.4874,,0.3693,0.3167,-0.2108,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold
-2,Vote fraction,CT-only,Linear Regression,regression,158,42,0.619,0.7143,0.2632,0.3846,0.643,,0.3173,0.2544,0.106,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold
-2,Vote fraction,CT-only,Random Forest Regressor,regression,158,42,0.5238,0.4444,0.2105,0.2857,0.5195,,0.3524,0.3005,-0.1029,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold
-2,Vote fraction,CT-only,SVR (RBF),regression,158,42,0.4762,0.3333,0.1579,0.2143,0.4622,,0.3789,0.3168,-0.2749,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold
-3,Majority vote,CT + demographics,Gradient Boosting,classification,157,43,0.6279,0.5789,0.5789,0.5789,0.6754,0.6437,,,,
-3,Majority vote,CT + demographics,Logistic Regression,classification,157,43,0.6279,0.5789,0.5789,0.5789,0.7193,0.6869,,,,
-3,Majority vote,CT + demographics,Random Forest,classification,157,43,0.6512,0.625,0.5263,0.5714,0.7237,0.6574,,,,
-3,Majority vote,CT + demographics,SVM (RBF),classification,157,43,0.6977,0.65,0.6842,0.6667,0.7566,0.7392,,,,
-4,Majority vote,Demographics-only,Gradient Boosting,classification,157,43,0.5581,0.5,0.4737,0.4865,0.4978,0.4374,,,,
-4,Majority vote,Demographics-only,Logistic Regression,classification,157,43,0.6047,0.5556,0.5263,0.5405,0.7061,0.7014,,,,
-4,Majority vote,Demographics-only,Random Forest,classification,157,43,0.5581,0.5,0.4737,0.4865,0.6425,0.598,,,,
-4,Majority vote,Demographics-only,SVM (RBF),classification,157,43,0.5814,0.52,0.6842,0.5909,0.6009,0.6105,,,,
-5,Halldor+3D agree (2/3),CT-only,Gradient Boosting,classification,119,31,0.7742,0.7778,0.5833,0.6667,0.7325,0.713,,,,
-5,Halldor+3D agree (2/3),CT-only,Logistic Regression,classification,119,31,0.7419,0.8333,0.4167,0.5556,0.8421,0.8246,,,,
-5,Halldor+3D agree (2/3),CT-only,Random Forest,classification,119,31,0.7419,0.8333,0.4167,0.5556,0.886,0.8423,,,,
-5,Halldor+3D agree (2/3),CT-only,SVM (RBF),classification,119,31,0.7419,0.8333,0.4167,0.5556,0.7851,0.7339,,,,
-6,Original surgeon only,CT + demographics,Gradient Boosting,classification,161,39,0.6923,0.6154,0.8889,0.7273,0.7407,0.7002,,,,
-6,Original surgeon only,CT + demographics,Logistic Regression,classification,161,39,0.7179,0.6522,0.8333,0.7317,0.7963,0.8197,,,,
-6,Original surgeon only,CT + demographics,Random Forest,classification,161,39,0.7436,0.6818,0.8333,0.75,0.6852,0.5819,,,,
-6,Original surgeon only,CT + demographics,SVM (RBF),classification,161,39,0.641,0.5769,0.8333,0.6818,0.7063,0.7016,,,,
-7,Unanimous (3/3),CT-only,Gradient Boosting,classification,68,19,0.6316,0.5714,0.5,0.5333,0.8295,0.7993,,,,
-7,Unanimous (3/3),CT-only,Logistic Regression,classification,68,19,0.8421,1.0,0.625,0.7692,0.9773,0.975,,,,
-7,Unanimous (3/3),CT-only,Random Forest,classification,68,19,0.7368,0.8,0.5,0.6154,0.9432,0.9207,,,,
-7,Unanimous (3/3),CT-only,SVM (RBF),classification,68,19,0.8421,1.0,0.625,0.7692,0.8977,0.8966,,,,
-8,Unanimous (3/3),Demographics-only,Gradient Boosting,classification,68,19,0.6842,0.6667,0.5,0.5714,0.7045,0.7105,,,,
-8,Unanimous (3/3),Demographics-only,Logistic Regression,classification,68,19,0.8421,0.8571,0.75,0.8,0.8864,0.8461,,,,
-8,Unanimous (3/3),Demographics-only,Random Forest,classification,68,19,0.6842,0.6667,0.5,0.5714,0.8636,0.8042,,,,
-8,Unanimous (3/3),Demographics-only,SVM (RBF),classification,68,19,0.8421,0.7273,1.0,0.8421,0.9091,0.8875,,,,
-9,Unanimous (3/3),CT + demographics,Gradient Boosting,classification,68,19,0.6842,1.0,0.25,0.4,0.7045,0.7105,,,,
-9,Unanimous (3/3),CT + demographics,Logistic Regression,classification,68,19,0.8421,0.8571,0.75,0.8,0.9432,0.9068,,,,
-9,Unanimous (3/3),CT + demographics,Random Forest,classification,68,19,0.7895,1.0,0.5,0.6667,0.8864,0.8659,,,,
-9,Unanimous (3/3),CT + demographics,SVM (RBF),classification,68,19,0.8421,0.8571,0.75,0.8,0.9205,0.8866,,,,
-10,Original surgeon only,CT-only,Gradient Boosting,classification,161,39,0.5128,0.4762,0.5556,0.5128,0.537,0.493,,,,
-10,Original surgeon only,CT-only,Logistic Regression,classification,161,39,0.5128,0.4783,0.6111,0.5366,0.5212,0.5035,,,,
-10,Original surgeon only,CT-only,Random Forest,classification,161,39,0.5385,0.5,0.5,0.5,0.4577,0.4304,,,,
-10,Original surgeon only,CT-only,SVM (RBF),classification,161,39,0.4872,0.4375,0.3889,0.4118,0.5503,0.5041,,,,
-11,Original surgeon only,Demographics-only,Gradient Boosting,classification,161,39,0.7949,0.75,0.8333,0.7895,0.754,0.7361,,,,
-11,Original surgeon only,Demographics-only,Logistic Regression,classification,161,39,0.8205,0.7619,0.8889,0.8205,0.8095,0.8256,,,,
-11,Original surgeon only,Demographics-only,Random Forest,classification,161,39,0.7949,0.75,0.8333,0.7895,0.746,0.7074,,,,
-11,Original surgeon only,Demographics-only,SVM (RBF),classification,161,39,0.6923,0.625,0.8333,0.7143,0.7143,0.7099,,,,
-12,Vote fraction,Demographics-only,Gradient Boosting Regressor,regression,158,42,0.5476,0.5,0.5263,0.5128,0.5927,,0.3359,0.2832,-0.0019,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold
-12,Vote fraction,Demographics-only,Linear Regression,regression,158,42,0.5476,0.5,0.5263,0.5128,0.4554,,0.3481,0.304,-0.0757,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold
-12,Vote fraction,Demographics-only,Random Forest Regressor,regression,158,42,0.619,0.5789,0.5789,0.5789,0.5469,,0.3549,0.2987,-0.1181,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold
-12,Vote fraction,Demographics-only,SVR (RBF),regression,158,42,0.5476,0.5,0.4737,0.4865,0.5606,,0.3652,0.2994,-0.1844,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold
-13,Vote fraction,CT + demographics,Gradient Boosting Regressor,regression,158,42,0.4762,0.3333,0.1579,0.2143,0.5721,,0.3558,0.3059,-0.1238,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold
-13,Vote fraction,CT + demographics,Linear Regression,regression,158,42,0.5714,0.5333,0.4211,0.4706,0.659,,0.2875,0.2358,0.266,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold
-13,Vote fraction,CT + demographics,Random Forest Regressor,regression,158,42,0.5,0.4167,0.2632,0.3226,0.5629,,0.3328,0.2862,0.0166,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold
-13,Vote fraction,CT + demographics,SVR (RBF),regression,158,42,0.5238,0.4545,0.2632,0.3333,0.5423,,0.3314,0.2738,0.0247,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold
+scenario,ground_truth,feature_set,model,task_type,n_train,n_test,accuracy,precision,recall,f1,roc_auc,pr_auc,rmse,mae,r2,note,roc_auc_95ci_lower,roc_auc_95ci_upper,rmse_95ci_lower,rmse_95ci_upper,ci_repeats
+1,Majority vote,CT-only,Gradient Boosting,classification,157,43,0.6279,0.5882,0.5263,0.5556,0.7171,0.6117,,,,,0.496,0.7963,,,30
+1,Majority vote,CT-only,Logistic Regression,classification,157,43,0.6512,0.5909,0.6842,0.6341,0.6469,0.5766,,,,,0.5598,0.8842,,,30
+1,Majority vote,CT-only,Random Forest,classification,157,43,0.6047,0.5714,0.4211,0.4848,0.7368,0.6309,,,,,0.5622,0.8158,,,30
+1,Majority vote,CT-only,SVM (RBF),classification,157,43,0.6977,0.6875,0.5789,0.6286,0.6996,0.6071,,,,,0.5511,0.7932,,,30
+2,Vote fraction,CT-only,Gradient Boosting Regressor,regression,158,42,0.4524,0.3333,0.2105,0.2581,0.4874,,0.3693,0.3167,-0.2108,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold,0.4361,0.768,0.2742,0.39,30
+2,Vote fraction,CT-only,Linear Regression,regression,158,42,0.619,0.7143,0.2632,0.3846,0.643,,0.3173,0.2544,0.106,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold,0.4629,0.7868,0.2756,0.3695,30
+2,Vote fraction,CT-only,Random Forest Regressor,regression,158,42,0.5238,0.4444,0.2105,0.2857,0.5195,,0.3524,0.3005,-0.1029,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold,0.5297,0.7813,0.2646,0.3706,30
+2,Vote fraction,CT-only,SVR (RBF),regression,158,42,0.4762,0.3333,0.1579,0.2143,0.4622,,0.3789,0.3168,-0.2749,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold,0.4545,0.7832,0.2847,0.3923,30
+3,Majority vote,CT + demographics,Gradient Boosting,classification,157,43,0.6279,0.5789,0.5789,0.5789,0.6754,0.6437,,,,,0.4227,0.8211,,,30
+3,Majority vote,CT + demographics,Logistic Regression,classification,157,43,0.6279,0.5789,0.5789,0.5789,0.7193,0.6869,,,,,0.5554,0.9,,,30
+3,Majority vote,CT + demographics,Random Forest,classification,157,43,0.6512,0.625,0.5263,0.5714,0.7237,0.6574,,,,,0.527,0.818,,,30
+3,Majority vote,CT + demographics,SVM (RBF),classification,157,43,0.6977,0.65,0.6842,0.6667,0.7566,0.7392,,,,,0.51,0.8199,,,30
+4,Majority vote,Demographics-only,Gradient Boosting,classification,157,43,0.5581,0.5,0.4737,0.4865,0.4978,0.4374,,,,,0.317,0.7231,,,30
+4,Majority vote,Demographics-only,Logistic Regression,classification,157,43,0.6047,0.5556,0.5263,0.5405,0.7061,0.7014,,,,,0.4612,0.891,,,30
+4,Majority vote,Demographics-only,Random Forest,classification,157,43,0.5581,0.5,0.4737,0.4865,0.6425,0.598,,,,,0.3516,0.7362,,,30
+4,Majority vote,Demographics-only,SVM (RBF),classification,157,43,0.5814,0.52,0.6842,0.5909,0.6009,0.6105,,,,,0.4496,0.8114,,,30
+5,Halldor+3D agree (2/3),CT-only,Gradient Boosting,classification,119,31,0.7742,0.7778,0.5833,0.6667,0.7325,0.713,,,,,0.6547,0.9234,,,30
+5,Halldor+3D agree (2/3),CT-only,Logistic Regression,classification,119,31,0.7419,0.8333,0.4167,0.5556,0.8421,0.8246,,,,,0.6823,0.9177,,,30
+5,Halldor+3D agree (2/3),CT-only,Random Forest,classification,119,31,0.7419,0.8333,0.4167,0.5556,0.886,0.8423,,,,,0.6595,0.9315,,,30
+5,Halldor+3D agree (2/3),CT-only,SVM (RBF),classification,119,31,0.7419,0.8333,0.4167,0.5556,0.7851,0.7339,,,,,0.6452,0.8947,,,30
+6,Original surgeon only,CT + demographics,Gradient Boosting,classification,161,39,0.6923,0.6154,0.8889,0.7273,0.7407,0.7002,,,,,0.7017,0.9545,,,30
+6,Original surgeon only,CT + demographics,Logistic Regression,classification,161,39,0.7179,0.6522,0.8333,0.7317,0.7963,0.8197,,,,,0.8084,0.986,,,30
+6,Original surgeon only,CT + demographics,Random Forest,classification,161,39,0.7436,0.6818,0.8333,0.75,0.6852,0.5819,,,,,0.6722,0.9763,,,30
+6,Original surgeon only,CT + demographics,SVM (RBF),classification,161,39,0.641,0.5769,0.8333,0.6818,0.7063,0.7016,,,,,0.697,0.9755,,,30
+7,Unanimous (3/3),CT-only,Gradient Boosting,classification,68,19,0.6316,0.5714,0.5,0.5333,0.8295,0.7993,,,,,0.4799,0.9299,,,30
+7,Unanimous (3/3),CT-only,Logistic Regression,classification,68,19,0.8421,1.0,0.625,0.7692,0.9773,0.975,,,,,0.641,1.0,,,30
+7,Unanimous (3/3),CT-only,Random Forest,classification,68,19,0.7368,0.8,0.5,0.6154,0.9432,0.9207,,,,,0.657,0.9642,,,30
+7,Unanimous (3/3),CT-only,SVM (RBF),classification,68,19,0.8421,1.0,0.625,0.7692,0.8977,0.8966,,,,,0.6075,0.9718,,,30
+8,Unanimous (3/3),Demographics-only,Gradient Boosting,classification,68,19,0.6842,0.6667,0.5,0.5714,0.7045,0.7105,,,,,0.6601,1.0,,,30
+8,Unanimous (3/3),Demographics-only,Logistic Regression,classification,68,19,0.8421,0.8571,0.75,0.8,0.8864,0.8461,,,,,0.8333,1.0,,,30
+8,Unanimous (3/3),Demographics-only,Random Forest,classification,68,19,0.6842,0.6667,0.5,0.5714,0.8636,0.8042,,,,,0.8158,1.0,,,30
+8,Unanimous (3/3),Demographics-only,SVM (RBF),classification,68,19,0.8421,0.7273,1.0,0.8421,0.9091,0.8875,,,,,0.8024,1.0,,,30
+9,Unanimous (3/3),CT + demographics,Gradient Boosting,classification,68,19,0.6842,1.0,0.25,0.4,0.7045,0.7105,,,,,0.5807,1.0,,,30
+9,Unanimous (3/3),CT + demographics,Logistic Regression,classification,68,19,0.8421,0.8571,0.75,0.8,0.9432,0.9068,,,,,0.8118,1.0,,,30
+9,Unanimous (3/3),CT + demographics,Random Forest,classification,68,19,0.7895,1.0,0.5,0.6667,0.8864,0.8659,,,,,0.7637,1.0,,,30
+9,Unanimous (3/3),CT + demographics,SVM (RBF),classification,68,19,0.8421,0.8571,0.75,0.8,0.9205,0.8866,,,,,0.7314,1.0,,,30
+10,Original surgeon only,CT-only,Gradient Boosting,classification,161,39,0.5128,0.4762,0.5556,0.5128,0.537,0.493,,,,,0.3991,0.7982,,,30
+10,Original surgeon only,CT-only,Logistic Regression,classification,161,39,0.5128,0.4783,0.6111,0.5366,0.5212,0.5035,,,,,0.3645,0.8089,,,30
+10,Original surgeon only,CT-only,Random Forest,classification,161,39,0.5385,0.5,0.5,0.5,0.4577,0.4304,,,,,0.3988,0.7219,,,30
+10,Original surgeon only,CT-only,SVM (RBF),classification,161,39,0.4872,0.4375,0.3889,0.4118,0.5503,0.5041,,,,,0.4328,0.7633,,,30
+11,Original surgeon only,Demographics-only,Gradient Boosting,classification,161,39,0.7949,0.75,0.8333,0.7895,0.754,0.7361,,,,,0.7545,0.9565,,,30
+11,Original surgeon only,Demographics-only,Logistic Regression,classification,161,39,0.8205,0.7619,0.8889,0.8205,0.8095,0.8256,,,,,0.8445,1.0,,,30
+11,Original surgeon only,Demographics-only,Random Forest,classification,161,39,0.7949,0.75,0.8333,0.7895,0.746,0.7074,,,,,0.7728,0.9871,,,30
+11,Original surgeon only,Demographics-only,SVM (RBF),classification,161,39,0.6923,0.625,0.8333,0.7143,0.7143,0.7099,,,,,0.7999,0.9703,,,30
+12,Vote fraction,Demographics-only,Gradient Boosting Regressor,regression,158,42,0.5476,0.5,0.5263,0.5128,0.5927,,0.3359,0.2832,-0.0019,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold,0.4027,0.7899,0.296,0.4281,30
+12,Vote fraction,Demographics-only,Linear Regression,regression,158,42,0.5476,0.5,0.5263,0.5128,0.4554,,0.3481,0.304,-0.0757,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold,0.4652,0.8215,0.2606,0.3744,30
+12,Vote fraction,Demographics-only,Random Forest Regressor,regression,158,42,0.619,0.5789,0.5789,0.5789,0.5469,,0.3549,0.2987,-0.1181,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold,0.4008,0.8369,0.2801,0.4036,30
+12,Vote fraction,Demographics-only,SVR (RBF),regression,158,42,0.5476,0.5,0.4737,0.4865,0.5606,,0.3652,0.2994,-0.1844,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold,0.4091,0.7446,0.2895,0.4489,30
+13,Vote fraction,CT + demographics,Gradient Boosting Regressor,regression,158,42,0.4762,0.3333,0.1579,0.2143,0.5721,,0.3558,0.3059,-0.1238,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold,0.4854,0.7964,0.2671,0.3813,30
+13,Vote fraction,CT + demographics,Linear Regression,regression,158,42,0.5714,0.5333,0.4211,0.4706,0.659,,0.2875,0.2358,0.266,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold,0.5379,0.857,0.2372,0.36,30
+13,Vote fraction,CT + demographics,Random Forest Regressor,regression,158,42,0.5,0.4167,0.2632,0.3226,0.5629,,0.3328,0.2862,0.0166,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold,0.5267,0.8319,0.257,0.3622,30
+13,Vote fraction,CT + demographics,SVR (RBF),regression,158,42,0.5238,0.4545,0.2632,0.3333,0.5423,,0.3314,0.2738,0.0247,precision/recall/F1/accuracy/ROC-AUC computed at 0.5 vote-fraction threshold,0.4515,0.8048,0.264,0.39,30

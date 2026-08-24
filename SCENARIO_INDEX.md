@@ -51,10 +51,12 @@ reads as one isolated feature-set comparison.
 
 - `05_compare_all_experiments.py` — cross-scenario comparison chart for the majority-vote family (scenarios 1/3/4). Not yet extended to scenarios 7–13.
 - `06_feature_importance_best_model_scenarios_1_3_4_5_6.py` — best-model feature importance for all classification scenarios (currently 1, 3, 4, 5, 6, 7, 8, 9, 10, 11). Vote-fraction scenarios (2, 12, 13) are regression tasks and out of scope.
-- `07_repeated_grouped_split_eval.py` — repeated patient-grouped split robustness check. Currently covers scenarios 1, 3, 4, 5, 6 only; not yet extended to 7–13.
+- `07_repeated_grouped_split_eval.py` — repeated patient-grouped split robustness check with 95% confidence intervals, covering **all 13 scenarios** (30 repeats each). Output: `results_repeated_splits_all_scenarios/`. This supersedes the older `results_repeated_splits_scenarios_1_3_4_5_6/` (10 repeats, scenarios 1/3/4/5/6 only), which is kept only as a historical artifact — treat the new directory as authoritative.
+- `08_build_all_models_metrics_table.py` — the single master table: every model's accuracy/precision/recall/F1/ROC-AUC/PR-AUC (or RMSE/MAE/R2 for vote-fraction) across all 13 scenarios, joined with the 95% CI from `07`'s repeated-split output. Output: `reports/all_models_metrics_table.csv` / `.md`. Rerun `07` before `08` if you've changed any scenario's data or models, so the CI columns stay in sync.
 
 ## Recommended follow-ups (not yet done)
 
-1. Extend `07_repeated_grouped_split_eval.py` to scenarios 7–13 so the new cells get the same robustness treatment as 1/3/4/5/6 — single-split estimates for the small "agreement" subsets (scenarios 5, 7, 8, 9; test n=19–31) are especially likely to be noisy.
-2. Extend `05_compare_all_experiments.py`'s comparison chart to include all 13 scenarios, or add a parallel chart grouped by ground truth instead of by feature set.
-3. Before adding a 14th scenario, update this file's matrix table and confirm which existing "base" split it should reuse — don't create a new independent split unless the ground truth itself is new.
+1. Extend `05_compare_all_experiments.py`'s comparison chart to include all 13 scenarios, or add a parallel chart grouped by ground truth instead of by feature set.
+2. Before adding a 14th scenario, update this file's matrix table and confirm which existing "base" split it should reuse — don't create a new independent split unless the ground truth itself is new. Also add it to `07_repeated_grouped_split_eval.py`'s `SCENARIOS` list so it gets a CI immediately rather than only a single-split point estimate.
+3. Consider deleting `results_repeated_splits_scenarios_1_3_4_5_6/` now that `results_repeated_splits_all_scenarios/` fully supersedes it (same scenarios plus 7 more, 30 repeats instead of 10) — kept for now since removing it is a destructive action outside this pass's scope.
+4. The 13 near-duplicated `load_and_clean`-style functions across the `03*` scripts (and now also inside `07`) are a standing maintenance risk — a future data-cleaning fix has to be found and applied in every copy. Worth consolidating into one shared module (e.g. `common_preprocessing.py`) in a dedicated pass.

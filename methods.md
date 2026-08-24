@@ -2,7 +2,7 @@
 
 **Working title:** The Artificial Intelligence versus the Orthopaedic Surgeon in Decision-Making of Cemented or Uncemented Total Hip Arthroplasty
 
-**Last updated:** 2026-03-05
+**Last updated:** 2026-08-23
 
 ---
 
@@ -127,7 +127,7 @@ Four classifiers were trained and compared:
 | Gradient Boosting | n_estimators=200, max_depth=3, learning_rate=0.1 |
 | SVM (RBF kernel) | probability=True, default C and gamma |
 
-Demographic variables (age, sex, weight, height, BMI) were **not** included as model features. `Anonymize_ID` was never used as a feature.
+Demographic variables (age, sex, weight, height, BMI) were excluded from the baseline scenario (1) to establish a CT-only reference point, but are included as model features in scenarios 3, 4, 6, and 7–13 to quantify their marginal and standalone contribution (see "Comparative sensitivity analyses" below). `Anonymize_ID` was never used as a feature in any scenario.
 
 ## 7. Model Evaluation
 
@@ -161,13 +161,13 @@ For tree-based models (Random Forest, Gradient Boosting), feature importance sco
 - **Random seed:** 42 (used consistently across all stochastic operations)
 - All pipeline steps are implemented as sequential scripts (`01_data_audit.py` through `04_train_evaluate.py`) that produce intermediate outputs to enable inspection at each stage.
 
-## 9. Planned Sensitivity Analyses
+## 9. Sensitivity Analyses: Status
 
-- Model performance on **unanimous-only** ground truth subset (3/3 surgeon agreement)
-- Model performance on **majority-vote** full set
-- Cohort-specific models (train/test within a single cohort)
-- Impact of including vs. excluding "Questionable Quality" scans
-- Comparison with models that include demographic features (age, sex, BMI) to quantify the marginal value of CT-only classification
+- Model performance on **unanimous-only** ground truth subset (3/3 surgeon agreement) — **done** (scenarios 7–9; see "Comparative sensitivity analyses").
+- Model performance on **majority-vote** full set — **done** (scenarios 1, 3, 4; the primary analysis).
+- Comparison with models that include demographic features (age, sex, BMI) to quantify the marginal value of CT-only classification — **done** (scenarios 3, 4, 6, 8, 9, 11, 12, 13).
+- Cohort-specific models (train/test within a single cohort, i.e. a Philips-only model and a Toshiba-only model trained independently) — **not done / out of scope for this revision.** What exists today (Section 7.3) is weaker: the pooled model (trained on both cohorts) evaluated separately on each cohort's test hips. That does not tell us whether a model trained exclusively within one cohort would perform differently — it only tells us how the pooled model generalizes to each cohort's test subset. True cohort-specific training would also roughly halve the training set size (n≈70–100 patients per cohort), which is a real constraint worth discussing with the team before committing to it.
+- Impact of including vs. excluding "Questionable Quality" scans — **not done / out of scope for this revision.** Scans flagged "Questionable Quality" or "Questionable scan quality" are currently always retained (Section 4.1); no script re-runs the pipeline with them excluded to test whether they change results. Would need a new preprocessing variant that filters on the `notes` column before the split.
 
 ## 10. Ethical Considerations
 
@@ -186,6 +186,7 @@ For tree-based models (Random Forest, Gradient Boosting), feature importance sco
 | 2026-03-05 | Pipeline steps b-d implemented. |
 | 2026-03-05 | Added scenarios 5–6, split-stratification logging, and repeated-split robustness analysis. |
 | 2026-08-23 | Added scenarios 7–13 to complete the 3×3 ground-truth × feature-set sensitivity matrix (unanimous agreement, original-surgeon-only, and vote-fraction targets each now tested against CT-only, demographics-only, and CT+demographics). Corrected scenario 5/6 prose figures to match committed result files, fixed a stale image reference, repointed the feature-importance script at current (non-stale) result directories, and removed orphaned pre-split-fix result directories (`results_majority/`, `results_majority_CT+Demographics/`, `results_majority_demographics_only/`). See `SCENARIO_INDEX.md`. |
+| 2026-08-23 | Added precision/recall/F1 to the vote-fraction scenarios (2, 12, 13), which previously reported only regression metrics. Added a consolidated all-scenarios metrics table (`08_build_all_models_metrics_table.py`, `reports/all_models_metrics_table.md`). Extended the repeated-split robustness check to all 13 scenarios with 30 repeats and 95% confidence intervals (`07_repeated_grouped_split_eval.py` → `results_repeated_splits_all_scenarios/`), joined into the master metrics table. Corrected a stale claim that demographics were excluded from all models, and marked the "cohort-specific models" and "questionable-quality-scan exclusion" sensitivity analyses explicitly as not done. |
 
 ---
 
@@ -239,14 +240,32 @@ Notes on interpretation:
 
 Best-model feature-importance outputs for scenarios 1, 3, 4, 5, 6, 7, 8, 9, 10, and 11 (all classification scenarios) are stored in `results_feature_importance_best_model/`, with per-scenario CSV rankings and top-feature plots indexed in `best_model_feature_importance_summary.csv`. Vote-fraction scenarios (2, 12, 13) are regression tasks and are out of scope for that script.
 
-### Repeated split robustness check
+### Repeated split robustness check and 95% confidence intervals
 
-To reduce dependence on a single test split, repeated patient-grouped split evaluation was run for scenarios 1, 3, 4, 5, and 6 (`repeats=10`):
-- Scenario 1: Logistic Regression median ROC-AUC **0.7569**
-- Scenario 3: Logistic Regression median ROC-AUC **0.8220**
-- Scenario 4: Logistic Regression median ROC-AUC **0.7230**
-- Scenario 5: Random Forest median ROC-AUC **0.8176**
-- Scenario 6: Logistic Regression median ROC-AUC **0.9167**
+A single train/test split is a noisy estimate of performance, particularly with test sets as small as 19–43 hips — one misclassified hip can move an AUC by several points. To quantify that noise, `07_repeated_grouped_split_eval.py` now re-runs the patient-grouped split **30 times** (previously 10, and previously only for scenarios 1/3/4/5/6) for **all 13 scenarios**, retrains every model on each resplit, and reports the resulting distribution — including an empirical 95% confidence interval (2.5th–97.5th percentile across the 30 repeats) — rather than a single point estimate. Full results: `results_repeated_splits_all_scenarios/repeated_split_metrics_summary.csv` (per-scenario ROC-AUC boxplots in `figures/`).
 
-These repeated-split distributions provide a more stable estimate than any single hold-out run and are available in `results_repeated_splits_scenarios_1_3_4_5_6/`. Note that scenario 6's repeated-split median (0.9167) is also well above its corrected single-split figure (0.7963) reported above — this robustness check has not yet been extended to scenarios 7–13 and would be a natural next step before relying on any single-split number for the new scenarios.
+Best model per scenario by mean repeated-split ROC-AUC, with 95% CI:
+
+| # | Scenario | Best model (by mean) | Mean ROC-AUC | 95% CI |
+|---|---|---|---|---|
+| 1 | Majority, CT-only | Logistic Regression | 0.7102 | [0.560, 0.884] |
+| 2 | Vote fraction, CT-only | Random Forest Regressor | 0.6712 | [0.530, 0.781] |
+| 3 | Majority, CT+demo | Logistic Regression | 0.7424 | [0.555, 0.900] |
+| 4 | Majority, demo-only | Logistic Regression | 0.6656 | [0.461, 0.891] |
+| 5 | Halldor+3D agree (2/3), CT-only | Random Forest | 0.8247 | [0.660, 0.932] |
+| 6 | Original surgeon, CT+demo | Logistic Regression | 0.8920 | [0.808, 0.986] |
+| 7 | Unanimous (3/3), CT-only | Logistic Regression | 0.8468 | [0.641, 1.000] |
+| 8 | Unanimous (3/3), demo-only | Logistic Regression | 0.9588 | [0.833, 1.000] |
+| 9 | Unanimous (3/3), CT+demo | Logistic Regression | 0.9654 | [0.812, 1.000] |
+| 10 | Original surgeon, CT-only | Logistic Regression | 0.5850 | [0.365, 0.809] |
+| 11 | Original surgeon, demo-only | Logistic Regression | 0.9214 | [0.845, 1.000] |
+| 12 | Vote fraction, demo-only | Linear Regression | 0.6374 | [0.465, 0.822] |
+| 13 | Vote fraction, CT+demo | Linear Regression | 0.6993 | [0.538, 0.857] |
+
+Two things this table changes about how the point estimates elsewhere in this document should be read:
+
+- **The CIs are wide relative to the differences the single-split numbers imply.** For example, scenario 1's single-split best AUC (0.7368) and scenario 3's (0.7566) look like CT+demographics modestly beats CT-only — but their repeated-split CIs, [0.560, 0.884] and [0.555, 0.900], overlap almost entirely. None of the feature-set or ground-truth comparisons in this document should be read as a statistically confirmed difference without checking that the CIs are actually disjoint; most are not.
+- **The near-ceiling numbers for scenarios 8, 9, and 11 are the least trustworthy, not the most impressive.** Their means (0.92–0.97) look like the strongest results in the whole study, but their lower CI bounds (0.81–0.85) show genuinely wide uncertainty on n=19–39 test hips, and their upper bounds pinning at 1.000 is itself a sign of a small, easily-saturated test set rather than a robust ceiling effect. Scenario 10 shows the opposite, useful pattern: a tight-ish CI [0.365, 0.809] centered on chance, consistent with the single-split finding that CT-only carries little signal for the original surgeon's decision once demographics are held out.
+
+One reassuring pattern: Logistic Regression is the best-by-mean model in 10 of 13 scenarios, which somewhat mitigates (but does not eliminate) the "best of 4 models on the test set" multiple-comparisons concern — the winner is not bouncing unpredictably between model families run to run.
 
